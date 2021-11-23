@@ -173,7 +173,6 @@ BEGIN {
             # Configure UEFI
             system(
                 "./Configure",
-                "--config=../UefiAsm.conf",
                 "$uefi_config",
                 "no-afalgeng",
                 "no-async",
