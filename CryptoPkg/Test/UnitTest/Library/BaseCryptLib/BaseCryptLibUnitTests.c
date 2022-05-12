@@ -11,6 +11,7 @@ SUITE_DESC  mSuiteDesc[] = {
   //
   // Title--------------------------Package-------------------Sup--Tdn----TestNum------------TestDesc
   //
+  { "Bn verify tests",             "CryptoPkg.BaseCryptLib", NULL, NULL, &mBnTestNum,             mBnTest             },
   { "EKU verify tests",            "CryptoPkg.BaseCryptLib", NULL, NULL, &mPkcs7EkuTestNum,       mPkcs7EkuTest       },
   { "HASH verify tests",           "CryptoPkg.BaseCryptLib", NULL, NULL, &mHashTestNum,           mHashTest           },
   { "HMAC verify tests",           "CryptoPkg.BaseCryptLib", NULL, NULL, &mHmacTestNum,           mHmacTest           },
