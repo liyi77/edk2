@@ -11,7 +11,9 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 //
 // Debug data
 //
-#define MAX_TEST_DATA_SIZE 512
+#define MAX_TEST_DATA_SIZE  512
+#define BYTES_OF_OPERATION_A  60
+#define BITS_OF_OPERATION_A  (8 * 60)
 
 GLOBAL_REMOVE_IF_UNREFERENCED STATIC VOID *BnCTX;
 
@@ -33,7 +35,7 @@ GLOBAL_REMOVE_IF_UNREFERENCED CONST UINT8  BnOperationC[] = {
   0x27, 0x2c, 0x32, 0xab, 0x0e, 0xde, 0xd1, 0x63, 0x1a, 0x8b, 0x60, 0x5a, 0x43, 0xff, 0x5b, 0xed
 };
 
-GLOBAL_REMOVE_IF_UNREFERENCED CONST UINT8  BnOperationD[] = {
+GLOBAL_REMOVE_IF_UNREFERENCED CONST UINT8  BnOperationExp[] = {
   0x27, 0x2c, 0x32, 0xab, 0x0e, 0xde, 0xd1, 0x63
 };
 
@@ -71,7 +73,19 @@ GLOBAL_REMOVE_IF_UNREFERENCED CONST UINT8  BnResultDiv[] =  {
 // BnOperationA % BnOperationMod
 GLOBAL_REMOVE_IF_UNREFERENCED CONST UINT8  BnResultMod[] =  {
   0x06, 0x2A, 0x8D, 0x06, 0x9D, 0x14, 0x53, 0x3B, 0x05, 0xD9, 0x86, 0x00, 0xA5, 0xB9, 0x05, 0x7F,
-  0xC1, 0x82, 0xEC, 0x23, 0x44, 0x23, 0xC8, 0xA2, 0x42, 0xB3, 0x43, 0xB8, 0x7C, 0xD6, 0xB1, 0xCF,
+  0xC1, 0x82, 0xEC, 0x23, 0x44, 0x23, 0xC8, 0xA2, 0x42, 0xB3, 0x43, 0xB8, 0x7C, 0xD6, 0xB1, 0xCF
+};
+
+// BnOperationA % BnOperationMod
+GLOBAL_REMOVE_IF_UNREFERENCED CONST UINT8  BnResultInverseMod[] =  {
+  0x3a, 0xeb, 0xc5, 0x98, 0x9c, 0x22, 0xd6, 0x76, 0x7d, 0x1c, 0xc6, 0xd6, 0xbb, 0x1b, 0xed, 0xfd,
+  0x0f, 0x34, 0xbf, 0xe0, 0x2b, 0x4a, 0x26, 0xc3, 0xc0, 0xd9, 0x57, 0xc7, 0x11, 0xc0, 0xd6, 0x35
+};
+
+// BnOperationA % BnOperationMod
+GLOBAL_REMOVE_IF_UNREFERENCED CONST UINT8  BnResultExpMod[] =  {
+  0x39, 0xf8, 0x74, 0xa0, 0xe8, 0x02, 0x8b, 0xf2, 0x22, 0x62, 0x82, 0x4c, 0xe0, 0xed, 0x63, 0x48,
+  0xb9, 0xa2, 0xaa, 0xbc, 0xba, 0xb1, 0xd3, 0x6a, 0x02, 0xfd, 0xf3, 0x0e, 0x3a, 0x19, 0x39, 0x37
 };
 
 typedef struct {
@@ -164,35 +178,45 @@ TestVerifyBn (
   )
 {
   BN_TEST_CONTEXT *BnContext;
+  UINTN Num;
   BnContext = Context;
 
-  // Sum/Sub/ToBin/FromBin test
+  // Calculation tests
   BnContext->BnA = BigNumFromBin (BnOperationA, sizeof(BnOperationA));
   BnContext->BnB = BigNumFromBin (BnOperationB, sizeof(BnOperationB));
   //C=A+B
   BigNumAdd( BnContext->BnA, BnContext->BnB, BnContext->BnC);
   UT_ASSERT_TRUE ( EqualBn2Bin(BnContext->BnC, BnResultSum, sizeof(BnResultSum)));
-
   //D=C-A=B
   BigNumSub( BnContext->BnC, BnContext->BnA, BnContext->BnD);
   UT_ASSERT_TRUE (EqualBn2Bn (BnContext->BnB, BnContext->BnD));
-
   //C=(A+B)%D
   BnContext->BnD = BigNumFromBin (BnOperationMod, sizeof(BnOperationMod));
   BigNumAddMod(BnContext->BnA, BnContext->BnB, BnContext->BnD, BnContext->BnC);
   UT_ASSERT_TRUE ( EqualBn2Bin(BnContext->BnC, BnResultSumMod, sizeof(BnResultSumMod)));
-
   //C=(A*B)%D
   BigNumMulMod(BnContext->BnA, BnContext->BnB, BnContext->BnD, BnContext->BnC);
   UT_ASSERT_TRUE ( EqualBn2Bin(BnContext->BnC, BnResultMulMod, sizeof(BnResultMulMod)));
-
   //C=A/D
   BigNumDiv(BnContext->BnA, BnContext->BnD, BnContext->BnC);
   UT_ASSERT_TRUE ( EqualBn2Bin(BnContext->BnC, BnResultDiv, sizeof(BnResultDiv)));
-
   //C=A%D
   BigNumMod(BnContext->BnA, BnContext->BnD, BnContext->BnC);
   UT_ASSERT_TRUE ( EqualBn2Bin(BnContext->BnC, BnResultMod, sizeof(BnResultMod)));
+  //1=(A*C)%D
+  BigNumInverseMod(BnContext->BnA, BnContext->BnD, BnContext->BnC);
+  UT_ASSERT_TRUE ( EqualBn2Bin(BnContext->BnC, BnResultInverseMod, sizeof(BnResultInverseMod)));
+  //C=(A^B)%D
+  BnContext->BnB = BigNumFromBin(BnOperationExp, sizeof(BnOperationExp));
+  BigNumExpMod(BnContext->BnA, BnContext->BnB, BnContext->BnD, BnContext->BnC);
+  UT_ASSERT_TRUE ( EqualBn2Bin(BnContext->BnC, BnResultExpMod, sizeof(BnResultExpMod)));
+
+  //Other tests
+  Num = BigNumBytes(BnContext->BnA);
+  UT_ASSERT_EQUAL (Num, BYTES_OF_OPERATION_A);
+  Num = BigNumBits(BnContext->BnA);
+  UT_ASSERT_EQUAL (Num, BITS_OF_OPERATION_A); 
+
 
   return FALSE;
 }
