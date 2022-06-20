@@ -147,21 +147,19 @@ BigNumSub (
 EFI_STATUS
 EFIAPI
 BigNumMod (
+  IN VOID  *BnCtx,
   IN CONST VOID  *BnA,
   IN CONST VOID  *BnB,
   OUT VOID       *BnRes
   )
 {
   int     Res;
-  BN_CTX  *Bnctx;
 
-  Bnctx = BN_CTX_new ();
-  if (!Bnctx) {
-    return EFI_OUT_OF_RESOURCES;
+  if (!BnCtx) {
+    return EFI_INVALID_PARAMETER;
   }
 
-  Res = BN_mod (BnRes, BnA, BnB, Bnctx);
-  BN_CTX_free (Bnctx);
+  Res = BN_mod (BnRes, BnA, BnB, BnCtx);
 
   return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
 }
@@ -183,6 +181,7 @@ BigNumMod (
 EFI_STATUS
 EFIAPI
 BigNumExpMod (
+  IN VOID  *BnCtx,
   IN CONST VOID   *BnA,
   IN CONST VOID   *BnP,
   IN CONST VOID   *BnM,
@@ -190,15 +189,12 @@ BigNumExpMod (
   )
 {
   int     Res;
-  BN_CTX  *Bnctx;
 
-  Bnctx = BN_CTX_new ();
-  if (!Bnctx) {
-    return EFI_OUT_OF_RESOURCES;
+  if (!BnCtx) {
+    return EFI_INVALID_PARAMETER;
   }
 
-  Res = BN_mod_exp (BnRes, BnA, BnP, BnM, Bnctx);
-  BN_CTX_free (Bnctx);
+  Res = BN_mod_exp (BnRes, BnA, BnP, BnM, BnCtx);
 
   return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
 }
@@ -219,21 +215,19 @@ BigNumExpMod (
 EFI_STATUS
 EFIAPI
 BigNumInverseMod (
+  IN VOID  *BnCtx,
   IN CONST VOID  *BnA,
   IN CONST VOID  *BnM,
   OUT VOID       *BnRes
   )
 {
   BIGNUM  *Res;
-  BN_CTX  *Bnctx;
 
-  Bnctx = BN_CTX_new ();
-  if (!Bnctx) {
-    return EFI_OUT_OF_RESOURCES;
+  if (!BnCtx) {
+    return EFI_INVALID_PARAMETER;
   }
 
-  Res = BN_mod_inverse (BnRes, BnA, BnM, Bnctx);
-  BN_CTX_free (Bnctx);
+  Res = BN_mod_inverse (BnRes, BnA, BnM, BnCtx);
 
   return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
 }
@@ -244,7 +238,7 @@ BigNumInverseMod (
   by calling to BigNumInit() or BigNumFromBin() functions.
 
   @param[in]   BnA     Big number.
-  @param[in]   BnM     Big number (modulo).
+  @param[in]   BnB     Big number.
   @param[out]  BnRes   The result, such that BnA / BnB.
 
   @retval EFI_SUCCESS          On success.
@@ -254,21 +248,18 @@ BigNumInverseMod (
 EFI_STATUS
 EFIAPI
 BigNumDiv (
+  IN VOID  *BnCtx,
   IN CONST VOID  *BnA,
-  IN CONST VOID  *BnM,
+  IN CONST VOID  *BnB,
   OUT VOID       *BnRes
   )
 {
   int     Res;
-  BN_CTX  *Bnctx;
 
-  Bnctx = BN_CTX_new ();
-  if (!Bnctx) {
-    return EFI_OUT_OF_RESOURCES;
+  if (!BnCtx) {
+    return EFI_INVALID_PARAMETER;
   }
-
-  Res = BN_div (BnRes, NULL, BnA, BnM, Bnctx);
-  BN_CTX_free (Bnctx);
+  Res = BN_div (BnRes, NULL, BnA, BnB, BnCtx);
 
   return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
 }
@@ -290,6 +281,7 @@ BigNumDiv (
 EFI_STATUS
 EFIAPI
 BigNumMulMod (
+  IN VOID  *BnCtx,
   IN CONST VOID  *BnA,
   IN CONST VOID  *BnB,
   IN CONST VOID  *BnM,
@@ -297,15 +289,11 @@ BigNumMulMod (
   )
 {
   int     Res;
-  BN_CTX  *Bnctx;
 
-  Bnctx = BN_CTX_new ();
-  if (!Bnctx) {
-    return EFI_OUT_OF_RESOURCES;
+  if (!BnCtx) {
+    return EFI_INVALID_PARAMETER;
   }
-
-  Res = BN_mod_mul (BnRes, BnA, BnB, BnM, Bnctx);
-  BN_CTX_free (Bnctx);
+  Res = BN_mod_mul (BnRes, BnA, BnB, BnM, BnCtx);
 
   return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
 }
@@ -493,21 +481,19 @@ BigNumConsttime (
 EFI_STATUS
 EFIAPI
 BigNumSqrMod (
+  IN VOID  *BnCtx,
   IN CONST VOID  *BnA,
   IN CONST VOID  *BnM,
   OUT VOID       *BnRes
   )
 {
   int     Res;
-  BN_CTX  *Ctx;
 
-  Ctx = BN_CTX_new ();
-  if (!Ctx) {
-    return EFI_OUT_OF_RESOURCES;
+  if (!BnCtx) {
+    return EFI_INVALID_PARAMETER;
   }
 
-  Res = BN_mod_sqr (BnRes, BnA, BnM, Ctx);
-  BN_CTX_free (Ctx);
+  Res = BN_mod_sqr (BnRes, BnA, BnM, BnCtx);
 
   return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
 }
@@ -573,6 +559,7 @@ BigNumSetUint (
 EFI_STATUS
 EFIAPI
 BigNumAddMod (
+  IN VOID  *BnCtx,
   IN CONST VOID  *BnA,
   IN CONST VOID  *BnB,
   IN CONST VOID  *BnM,
