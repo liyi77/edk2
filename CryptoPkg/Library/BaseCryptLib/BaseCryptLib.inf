@@ -54,6 +54,9 @@
   Pk/CryptRsaPssSign.c
   Pem/CryptPem.c
   Bn/CryptBn.c
+  Ec/CryptEcNull.c    |*|*|*|!gEfiCryptoPkgTokenSpaceGuid.PcdOpensslEcEnabled
+  Ec/CryptEc.c    |*|*|*|gEfiCryptoPkgTokenSpaceGuid.PcdOpensslEcEnabled
+
   SysCall/CrtWrapper.c
   SysCall/TimerWrapper.c
   SysCall/BaseMemAllocation.c
