@@ -4407,7 +4407,6 @@ BigNumValueOne (
   @param[out]  BnRes   The result.
 
   @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
   @retval EFI_PROTOCOL_ERROR   Otherwise.
 **/
 EFI_STATUS
@@ -4496,6 +4495,9 @@ BigNumContextFree (
 
   @param[in]   Bn     Big number to set.
   @param[in]   Val    Value to set.
+
+  @retval EFI_SUCCESS          On success.
+  @retval EFI_PROTOCOL_ERROR   Otherwise.
 **/
 EFI_STATUS
 EFIAPI
