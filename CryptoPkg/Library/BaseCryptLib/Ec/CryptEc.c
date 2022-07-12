@@ -21,13 +21,13 @@
 #include <openssl/ec.h>
 
 /**
-  Temp comment.
+  Return the Nid of certain ECC group.
 
   @param[in]  Group  Identifying number for the ECC group (IANA "Group
                      Description" attribute registry for RFC 2409).
 
-  @retval EcGroup object  On success.
-  @retval NULL            On failure.
+  @retval !=-1    On success.
+  @retval -1      ECC group not supported.
 **/
 STATIC
 INT32
@@ -46,12 +46,6 @@ GroupToNid (
       break;
     case 21:
       Nid = NID_secp521r1;
-      break;
-    case 25:
-      Nid = NID_X9_62_prime192v1;
-      break;
-    case 26:
-      Nid = NID_secp224r1;
       break;
     default:
       return -1;
@@ -427,6 +421,7 @@ EcPointSetCompressedCoordinates (
   @param[out] PKey     Pointer to an object that will hold the ECDH key.
 
   @retval EFI_SUCCESS        On success.
+  @retval EFI_UNSUPPORTED    ECC group not supported.
   @retval EFI_PROTOCOL_ERROR On failure.
 **/
 EFI_STATUS
@@ -520,7 +515,7 @@ EcDhGetPubKey (
   )
 {
   EC_KEY          *EcKey;
-  const EC_POINT  *Pubkey;
+  CONST EC_POINT  *Pubkey;
   EFI_STATUS      Status;
 
   Status = EFI_PROTOCOL_ERROR;
@@ -555,14 +550,18 @@ out:
   @param[in]  PKey           ECDH Key object.
   @param[in]  Group          Identifying number for the ECC group (IANA "Group
                              Description" attribute registry for RFC 2409).
-  @param[in]  EcPointPublic  Peer public key.
+  @param[in]  EcPointPublic  Peer public key. Certain sanity checks on the key
+                             will be performed to confirm that it is valid.
   @param[out] SecretSize     On success, holds secret size.
   @param[out] Secret         On success, holds the derived secret.
                              Should be freed by caller using FreePool()
                              function.
 
-  @retval EFI_SUCCESS        On success.
-  @retval EFI_PROTOCOL_ERROR On failure.
+  @retval EFI_SUCCESS           On success.
+  @retval EFI_UNSUPPORTED       ECC group not supported.
+  @retval EFI_INVALID_PARAMETER Secret and SecretSize should be initialized properly.
+  @retval EFI_INVALID_PARAMETER Public key should be checked against NIST.SP.800-56Ar2.
+  @retval EFI_PROTOCOL_ERROR    On failure.
 **/
 EFI_STATUS
 EFIAPI
@@ -603,6 +602,11 @@ EcDhDeriveSecret (
 
   PeerKey = EVP_PKEY_new ();
   if ((PeerKey == NULL) || (EVP_PKEY_set1_EC_KEY (PeerKey, EcKey) != 1)) {
+    goto fail;
+  }
+
+  if (!EC_KEY_check_key(EcKey)) {
+    Status = EFI_INVALID_PARAMETER;
     goto fail;
   }
 

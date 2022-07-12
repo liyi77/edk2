@@ -3389,7 +3389,7 @@ EFI_STATUS
   using EcGroupFree() function.
 
   @param[in]  Group  Identifying number for the ECC group (IANA "Group
-                     Description" attribute registrty for RFC 2409)
+                     Description" attribute registry for RFC 2409)
 
   @retval EcGroup object  On success
   @retval NULL            On failure
@@ -3682,10 +3682,11 @@ EFI_STATUS
   function was properly called before.
 
   @param[in]  Group    Identifying number for the ECC group (IANA "Group
-                       Description" attribute registrty for RFC 2409)
+                       Description" attribute registry for RFC 2409)
   @param[out] PKey     Pointer to an object that will hold the ECDH key
 
   @retval EFI_SUCCESS        On success
+  @retval EFI_UNSUPPORTED    ECC group not supported.
   @retval EFI_PROTOCOL_ERROR On failure
 **/
 typedef
@@ -3728,14 +3729,18 @@ EFI_STATUS
 
   @param[in]  PKey           ECDH Key object
   @param[in]  Group          Identifying number for the ECC group (IANA "Group
-                             Description" attribute registrty for RFC 2409)
-  @param[in]  EcPointPublic  Peer public key
+                             Description" attribute registry for RFC 2409)
+  @param[in]  EcPointPublic  Peer public key. Certain sanity checks on the key
+                             will be performed to confirm that it is valid.
   @param[out] SecretSize     On success, holds secret size
   @param[out] Secret         On success, holds the derived secret
                              Should be freed by caller using FreePool()
                              function.
 
   @retval EFI_SUCCESS        On success
+  @retval EFI_UNSUPPORTED       ECC group not supported.
+  @retval EFI_INVALID_PARAMETER Secret and SecretSize should be initialized properly.
+  @retval EFI_INVALID_PARAMETER Public key should be checked against NIST.SP.800-56Ar2.
   @retval EFI_PROTOCOL_ERROR On failure
 **/
 typedef
