@@ -4475,7 +4475,7 @@ CryptoServiceTlsGetCertRevocationList (
   using EcGroupFree() function.
 
   @param[in]  Group  Identifying number for the ECC group (IANA "Group
-                     Description" attribute registrty for RFC 2409).
+                     Description" attribute registry for RFC 2409).
 
   @retval EcGroup object  On success.
   @retval NULL            On failure.
@@ -4498,8 +4498,8 @@ CryptoServiceEcGroupInit (
 
   @param[in]  EcGroup    EC group object.
   @param[out] BnPrime    Group prime number.
-  @param[out] BnA        A coofecient.
-  @param[out] BnB        B coofecient.
+  @param[out] BnA        A coefficient.
+  @param[out] BnB        B coefficient..
   @param[in]  BnCtx      BN context.
 
   @retval EFI_SUCCESS        On success.
@@ -4810,10 +4810,10 @@ CryptoServiceEcPointSetCompressedCoordinates (
 /**
   Generate a key using ECDH algorithm. Please note, this function uses
   pseudo random number generator. The caller must make sure RandomSeed()
-  funtion was properly called before.
+  function was properly called before.
 
   @param[in]  Group    Identifying number for the ECC group (IANA "Group
-                       Description" attribute registrty for RFC 2409).
+                       Description" attribute registry for RFC 2409).
   @param[out] PKey     Pointer to an object that will hold the ECDH key.
 
   @retval EFI_SUCCESS        On success.
@@ -4851,6 +4851,7 @@ CryptoServiceEcDhKeyFree (
   @param[out] EcPoint  Properly initialized EC Point to hold the public key.
 
   @retval EFI_SUCCESS        On success.
+  @retval EFI_INVALID_PARAMETER EcPoint should be initialized properly.
   @retval EFI_PROTOCOL_ERROR On failure.
 **/
 EFI_STATUS
@@ -4868,7 +4869,7 @@ CryptoServiceEcDhGetPubKey (
 
   @param[in]  PKey           ECDH Key object.
   @param[in]  Group          Identifying number for the ECC group (IANA "Group
-                             Description" attribute registrty for RFC 2409).
+                             Description" attribute registry for RFC 2409).
   @param[in]  EcPointPublic  Peer public key.
   @param[out] SecretSize     On success, holds secret size.
   @param[out] Secret         On success, holds the derived secret.

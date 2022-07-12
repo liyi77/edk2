@@ -3408,8 +3408,8 @@ VOID *
 
   @param[in]  EcGroup    EC group object
   @param[out] BnPrime    Group prime number
-  @param[out] BnA        A coofecient
-  @param[out] BnB        B coofecient
+  @param[out] BnA        A coefficient
+  @param[out] BnB        B coefficient.
   @param[in]  BnCtx      BN context
 
   @retval EFI_SUCCESS        On success
@@ -3679,7 +3679,7 @@ EFI_STATUS
 /**
   Generate a key using ECDH algorithm. Please note, this function uses
   pseudo random number generator. The caller must make sure RandomSeed()
-  funtion was properly called before.
+  function was properly called before.
 
   @param[in]  Group    Identifying number for the ECC group (IANA "Group
                        Description" attribute registrty for RFC 2409)
