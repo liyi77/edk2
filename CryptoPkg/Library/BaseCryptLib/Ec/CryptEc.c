@@ -31,20 +31,20 @@
 **/
 STATIC
 INT32
-GroupToNid (
-  UINTN  Group
-  )
+CryptoNidToOpensslNid (
+  IN UINTN CryptoNid
+)
 {
   INT32  Nid;
 
-  switch (Group) {
-    case 19:
+  switch (CryptoNid) {
+    case CRYPTO_NID_SECP256R1:
       Nid = NID_X9_62_prime256v1;
       break;
-    case 20:
+    case CRYPTO_NID_SECP384R1:
       Nid = NID_secp384r1;
       break;
-    case 21:
+    case CRYPTO_NID_SECP521R1:
       Nid = NID_secp521r1;
       break;
     default:
@@ -68,18 +68,29 @@ GroupToNid (
 VOID *
 EFIAPI
 EcGroupInit (
-  IN UINTN  Group
+  IN UINTN  CryptoNid
   )
 {
   INT32  Nid;
 
-  Nid = GroupToNid (Group);
+  Nid = CryptoNidToOpensslNid (CryptoNid);
 
   if (Nid < 0) {
     return NULL;
   }
 
   return EC_GROUP_new_by_curve_name (Nid);
+}
+
+STATIC
+UINTN
+EFIAPI
+EcGroupGetPrimeBytes (
+  IN VOID *EcGroup
+  )
+{
+  // EC_GROUP_get_degree() will return the bits number of prime in EcGroup.
+  return (EC_GROUP_get_degree (EcGroup) + 7) / 8;
 }
 
 /**
@@ -416,8 +427,7 @@ EcPointSetCompressedCoordinates (
   pseudo random number generator. The caller must make sure RandomSeed()
   function was properly called before.
 
-  @param[in]  Group    Identifying number for the ECC group (IANA "Group
-                       Description" attribute registry for RFC 2409).
+  @param[in]  EcGroup  EC group object.
   @param[out] PKey     Pointer to an object that will hold the ECDH key.
 
   @retval EFI_SUCCESS        On success.
@@ -427,58 +437,39 @@ EcPointSetCompressedCoordinates (
 EFI_STATUS
 EFIAPI
 EcDhGenKey (
-  IN UINTN  Group,
+  IN  VOID  *EcGroup,
   OUT VOID  **PKey
   )
 {
-  EVP_PKEY      *Params;
-  EC_KEY        *EcParams;
-  EVP_PKEY_CTX  *Kctx;
   EFI_STATUS    Status;
   INT32         Nid;
+  EVP_PKEY_CTX  *Ctx;
 
-  Params   = NULL;
-  EcParams = NULL;
-  Kctx     = NULL;
-  Status   = EFI_PROTOCOL_ERROR;
-  Nid      = GroupToNid (Group);
-
-  if (Nid < 0) {
-    return EFI_UNSUPPORTED;
+  if (PKey == NULL || EcGroup == NULL) {
+    return EFI_INVALID_PARAMETER;
   }
 
-  EcParams = EC_KEY_new_by_curve_name (Nid);
-  if (EcParams == NULL) {
+  Status = EFI_PROTOCOL_ERROR;
+  Nid    = EC_GROUP_get_curve_name (EcGroup);
+  Ctx    = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
+
+  if (Ctx == NULL) {
+      goto fail;
+  }
+  if (EVP_PKEY_keygen_init (Ctx) != 1) {
     goto fail;
   }
-
-  EC_KEY_set_asn1_flag (EcParams, OPENSSL_EC_NAMED_CURVE);
-  Params = EVP_PKEY_new ();
-  if ((Params == NULL) || (EVP_PKEY_set1_EC_KEY (Params, EcParams) != 1)) {
+  if (EVP_PKEY_CTX_set_ec_paramgen_curve_nid (Ctx, Nid) != 1) {
     goto fail;
   }
-
-  Kctx = EVP_PKEY_CTX_new (Params, NULL);
-  if (Kctx == NULL) {
-    goto fail;
-  }
-
-  if (EVP_PKEY_keygen_init (Kctx) != 1) {
-    goto fail;
-  }
-
   // Assume RAND_seed was called
-  if (EVP_PKEY_keygen (Kctx, (EVP_PKEY **)PKey) != 1) {
+  if (EVP_PKEY_keygen (Ctx, (EVP_PKEY **)PKey) != 1) {
     goto fail;
   }
-
   Status = EFI_SUCCESS;
 
 fail:
-  EC_KEY_free (EcParams);
-  EVP_PKEY_free (Params);
-  EVP_PKEY_CTX_free (Kctx);
-
+  EVP_PKEY_CTX_free (Ctx);
   return Status;
 }
 
@@ -497,11 +488,110 @@ EcDhKeyFree (
 }
 
 /**
+  Set the public key.
+
+  @param[in, out]   PKey           ECDH Key object.
+  @param[in]        EcGroup        EC group object.
+  @param[in]        Public         Pointer to the buffer to receive generated public X,Y.
+  @param[in]        PublicSize     The size of Public buffer in bytes.
+  @param[in]        IncY           Flag to compressed coordinates.
+
+  @retval EFI_SUCCESS        On success.
+  @retval EFI_PROTOCOL_ERROR On failure.
+**/
+EFI_STATUS
+EFIAPI
+EcSetPubKey (
+  IN OUT  VOID     *PKey,
+  IN      EC_GROUP *EcGroup,
+  IN      UINT8    *PublicKey,
+  IN      UINTN    PublicKeySize,
+  IN      UINT32   *IncY
+  )
+{
+  EC_KEY         *EcKey;
+  BIGNUM         *BnX;
+  BIGNUM         *BnY;
+  EC_POINT       *EcPoint;
+  UINTN          HalfSize;
+  EFI_STATUS     Status;
+
+  if (PublicKey == NULL || EcGroup == NULL) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  HalfSize = EcGroupGetPrimeBytes (EcGroup);
+  if ((IncY == NULL) && (PublicKeySize != HalfSize * 2)) {
+    return EFI_INVALID_PARAMETER;
+  }
+  //Compressed coordinates
+  if ((IncY != NULL) && (PublicKeySize != HalfSize)) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  EcKey   = NULL;
+  BnX     = NULL;
+  BnY     = NULL;
+  EcPoint = NULL;
+  Status  = EFI_PROTOCOL_ERROR;
+
+  BnX = BN_bin2bn (PublicKey, (UINT32) HalfSize, NULL);
+  EcPoint = EC_POINT_new(EcGroup);
+  if ((BnX == NULL) || (EcPoint == NULL)) {
+    goto Done;
+  }
+
+	if (IncY == NULL) {
+		BnY = BN_bin2bn(PublicKey + HalfSize, HalfSize, NULL);
+		if (BnY == NULL) {
+			goto Done;
+    }
+    if (EC_POINT_set_affine_coordinates (EcGroup, EcPoint, BnX, BnY, NULL) != 1) {
+			goto Done;
+		}
+	} else {
+    //Compressed coordinates
+    if (EC_POINT_set_compressed_coordinates(EcGroup, EcPoint, BnX, *IncY, NULL) != 1) {
+			goto Done;
+		}
+	}
+
+  //EC_KEY* function will be deprecated in openssl 3.0, need update here when OpensslLib updating.
+  EcKey = EC_KEY_new_by_curve_name (EC_GROUP_get_curve_name(EcGroup));
+  if ((EcKey == NULL) || (EC_KEY_set_public_key (EcKey, EcPoint) != 1)) {
+    goto Done;
+  }
+
+  if (PKey == NULL) {
+    PKey = EVP_PKEY_new ();
+    if ((PKey == NULL) || (EVP_PKEY_set1_EC_KEY (PKey, EcKey) != 1)) {
+      EVP_PKEY_free (PKey);
+      goto Done;
+    }
+  } else {
+    if (EVP_PKEY_set1_EC_KEY (PKey, EcKey) != 1) {
+      goto Done;
+    }
+  }
+
+  Status = EFI_SUCCESS;
+
+Done:
+  BN_free (BnX);
+  BN_free (BnY);
+  EC_POINT_free(EcPoint);
+  EC_KEY_free (EcKey);
+  return Status;
+}
+
+/**
   Get the public key EC point. The provided EC point's coordinates will
   be set accordingly.
 
-  @param[in]  PKey     ECDH Key object.
-  @param[out] EcPoint  Properly initialized EC Point to hold the public key.
+  @param[in]  PKey           ECDH Key object.
+  @param[in]  EcGroup        EC group object.
+  @param[in]  Public         Pointer to the buffer to receive generated public X,Y.
+  @param[in]  PublicSize     The size of Public buffer in bytes.
 
   @retval EFI_SUCCESS        On success.
   @retval EFI_INVALID_PARAMETER EcPoint should be initialized properly.
@@ -510,36 +600,75 @@ EcDhKeyFree (
 EFI_STATUS
 EFIAPI
 EcDhGetPubKey (
-  IN VOID   *PKey,
-  OUT VOID  *EcPoint
+  IN      VOID   *PKey,
+  IN      VOID   *EcGroup,
+  OUT     UINT8  *PublicKey,
+  IN OUT  UINTN  *PublicKeySize
   )
 {
   EC_KEY          *EcKey;
-  CONST EC_POINT  *Pubkey;
+  CONST EC_POINT  *EcPoint;
   EFI_STATUS      Status;
+  BIGNUM          *BnX;
+  BIGNUM          *BnY;
+  INTN            XSize;
+  INTN            YSize;
+  UINTN           HalfSize;
 
-  Status = EFI_PROTOCOL_ERROR;
-
-  if (EcPoint == NULL) {
+  if (PKey == NULL || EcGroup == NULL || PublicKeySize == NULL) {
     return EFI_INVALID_PARAMETER;
   }
 
+  if (PublicKey == NULL && *PublicKeySize != 0) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  HalfSize = EcGroupGetPrimeBytes (EcGroup);
+  if (*PublicKeySize < HalfSize * 2) {
+    *PublicKeySize = HalfSize * 2;
+    return EFI_INVALID_PARAMETER;
+  }
+  *PublicKeySize = HalfSize * 2;
+
+  EcKey  = NULL;
+  BnX    = NULL;
+  BnY    = NULL;
+  Status = EFI_PROTOCOL_ERROR;
+
+  //EC_KEY* function will be deprecated in openssl 3.0, need update here when OpensslLib updating.
   EcKey = EVP_PKEY_get1_EC_KEY (PKey);
   if (EcKey == NULL) {
-    return EFI_PROTOCOL_ERROR;
-  }
-
-  Pubkey = EC_KEY_get0_public_key (EcKey);
-  if (Pubkey == NULL) {
     goto out;
   }
 
-  if (EC_POINT_copy (EcPoint, Pubkey) == 0) {
+  EcPoint = EC_KEY_get0_public_key (EcKey);
+  if (EcPoint == NULL) {
     goto out;
   }
+
+  BnX = BN_new();
+  BnY = BN_new();
+  if (BnX == NULL || BnY == NULL) {
+    goto out;
+  }
+  if (EC_POINT_get_affine_coordinates(EcGroup, EcPoint, BnX, BnY, NULL) != 1) {
+    goto out;
+  }
+  XSize = BN_num_bytes (BnX);
+  YSize = BN_num_bytes (BnY);
+  if (XSize <= 0 || YSize <= 0) {
+    goto out;
+  }
+  ASSERT ((UINTN)XSize <= HalfSize && (UINTN)YSize <= HalfSize);
+
+  ZeroMem (PublicKey, *PublicKeySize);
+  BN_bn2bin (BnX, &PublicKey[0 + HalfSize - XSize]);
+  BN_bn2bin (BnY, &PublicKey[HalfSize + HalfSize - YSize]);
 
   Status = EFI_SUCCESS;
 out:
+  BN_free (BnX);
+  BN_free (BnY);
   EC_KEY_free (EcKey);
   return Status;
 }
@@ -548,9 +677,8 @@ out:
   Derive ECDH secret.
 
   @param[in]  PKey           ECDH Key object.
-  @param[in]  Group          Identifying number for the ECC group (IANA "Group
-                             Description" attribute registry for RFC 2409).
-  @param[in]  EcPointPublic  Peer public key. Certain sanity checks on the key
+  @param[in]  EcGroup        EC group object.
+  @param[in]  PeerPKey       Peer public key object. Certain sanity checks on the key
                              will be performed to confirm that it is valid.
   @param[out] SecretSize     On success, holds secret size.
   @param[out] Secret         On success, holds the derived secret.
@@ -567,75 +695,51 @@ EFI_STATUS
 EFIAPI
 EcDhDeriveSecret (
   IN VOID    *PKey,
-  IN UINT8   Group,
-  IN VOID    *EcPointPublic,
+  IN VOID    *EcGroup,
+  IN VOID    *PeerPKey,
   OUT UINTN  *SecretSize,
-  OUT UINT8  **Secret
+  OUT UINT8  *Secret
   )
 {
   EVP_PKEY_CTX  *Ctx;
-  EVP_PKEY      *PeerKey;
-  EC_KEY        *EcKey;
-  INT32         Nid;
-  UINTN         Len;
-  UINT8         *Buf;
   EFI_STATUS    Status;
+  UINTN         HalfSize;
 
-  Ctx     = NULL;
-  PeerKey = NULL;
-  EcKey   = NULL;
-  Nid     = GroupToNid (Group);
-  Status  = EFI_PROTOCOL_ERROR;
-
-  if (Nid < 0) {
-    return EFI_UNSUPPORTED;
-  }
-
-  if ((Secret == NULL) || (SecretSize == NULL)) {
+  if (PKey == NULL || EcGroup == NULL || PeerPKey == NULL || SecretSize == NULL) {
     return EFI_INVALID_PARAMETER;
   }
 
-  EcKey = EC_KEY_new_by_curve_name (Nid);
-  if ((EcKey == NULL) || (EC_KEY_set_public_key (EcKey, EcPointPublic) != 1)) {
-    goto fail;
+  if ((Secret == NULL) && (*SecretSize != 0)) {
+    return EFI_INVALID_PARAMETER;
   }
 
-  PeerKey = EVP_PKEY_new ();
-  if ((PeerKey == NULL) || (EVP_PKEY_set1_EC_KEY (PeerKey, EcKey) != 1)) {
-    goto fail;
+  HalfSize = EcGroupGetPrimeBytes (EcGroup);
+  if (*SecretSize < HalfSize) {
+    *SecretSize = HalfSize;
+    return EFI_INVALID_PARAMETER;
+  }
+  *SecretSize = HalfSize;
+
+  if (!EVP_PKEY_public_check (PeerPKey)) {
+    return EFI_INVALID_PARAMETER;
   }
 
-  if (!EC_KEY_check_key(EcKey)) {
-    Status = EFI_INVALID_PARAMETER;
-    goto fail;
-  }
+  Ctx     = NULL;
+  Status  = EFI_PROTOCOL_ERROR;
 
   Ctx = EVP_PKEY_CTX_new (PKey, NULL);
-  if ((Ctx == NULL) || (EVP_PKEY_derive_init (Ctx) != 1) ||
-      (EVP_PKEY_derive_set_peer (Ctx, PeerKey) != 1) ||
-      (EVP_PKEY_derive (Ctx, NULL, &Len) != 1))
+  if (Ctx == NULL) {
+    goto fail;
+  }
+
+  if ((EVP_PKEY_derive_init (Ctx) != 1) ||
+      (EVP_PKEY_derive_set_peer (Ctx, PeerPKey) != 1) ||
+      (EVP_PKEY_derive (Ctx, Secret, SecretSize) != 1))
   {
     goto fail;
   }
 
-  Buf = AllocatePool (Len);
-  if (!Buf) {
-    goto fail;
-  }
-
-  if (EVP_PKEY_derive (Ctx, Buf, &Len) != 1) {
-    FreePool (Buf);
-    goto fail;
-  }
-
-  *SecretSize = Len;
-  *Secret     = Buf;
-  Status      = EFI_SUCCESS;
-
 fail:
-  EC_KEY_free (EcKey);
   EVP_PKEY_CTX_free (Ctx);
-  EVP_PKEY_free (PeerKey);
-
   return Status;
 }

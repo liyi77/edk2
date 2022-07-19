@@ -14,6 +14,13 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 #include <Uefi/UefiBaseType.h>
 
+#define CRYPTO_NID_NULL        0x0000
+
+// Key Exchange
+#define CRYPTO_NID_SECP256R1           0x0204
+#define CRYPTO_NID_SECP384R1           0x0205
+#define CRYPTO_NID_SECP521R1           0x0206
+
 ///
 /// MD5 digest size in bytes
 ///
