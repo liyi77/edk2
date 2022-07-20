@@ -3397,7 +3397,7 @@ EFI_STATUS
 typedef
 VOID *
 (EFIAPI *EDKII_CRYPTO_EC_GROUP_INIT)(
-  IN UINTN Group
+  IN UINTN  CryptoNid
   );
 
 /**
@@ -3692,8 +3692,8 @@ EFI_STATUS
 typedef
 EFI_STATUS
 (EFIAPI *EDKII_CRYPTO_EC_DH_GEN_KEY)(
-  IN UINTN Group,
-  OUT VOID **PKey
+  IN  VOID  *EcGroup,
+  OUT VOID  **PKey
   );
 
 /**
@@ -3705,6 +3705,28 @@ typedef
 VOID
 (EFIAPI *EDKII_CRYPTO_EC_DH_KEY_FREE)(
   IN VOID *PKey
+  );
+
+/**
+  Set the public key.
+
+  @param[in, out]   PKey           ECDH Key object.
+  @param[in]        EcGroup        EC group object.
+  @param[in]        Public         Pointer to the buffer to receive generated public X,Y.
+  @param[in]        PublicSize     The size of Public buffer in bytes.
+  @param[in]        IncY           Flag to compressed coordinates.
+
+  @retval EFI_SUCCESS        On success.
+  @retval EFI_PROTOCOL_ERROR On failure.
+**/
+typedef
+EFI_STATUS
+(EFIAPI *EDKII_CRYPTO_EC_DH_SET_PUB_KEY)(
+  IN OUT  VOID   *PKey,
+  IN      VOID   *EcGroup,
+  IN      UINT8  *PublicKey,
+  IN      UINTN  PublicKeySize,
+  IN      UINT32 *IncY
   );
 
 /**
@@ -3720,8 +3742,10 @@ VOID
 typedef
 EFI_STATUS
 (EFIAPI *EDKII_CRYPTO_EC_DH_GET_PUB_KEY)(
-  IN VOID *PKey,
-  OUT VOID *EcPoint
+  IN      VOID   *PKey,
+  IN      VOID   *EcGroup,
+  OUT     UINT8  *PublicKey,
+  IN OUT  UINTN  *PublicKeySize
   );
 
 /**
@@ -3746,11 +3770,11 @@ EFI_STATUS
 typedef
 EFI_STATUS
 (EFIAPI *EDKII_CRYPTO_EC_DH_DERIVE_SECRET)(
-  IN VOID *PKey,
-  IN UINT8 Group,
-  IN VOID *EcPointPublic,
-  OUT UINTN *Secret_Size,
-  OUT UINT8 **Secret
+  IN VOID    *PKey,
+  IN VOID    *EcGroup,
+  IN VOID    *PeerPKey,
+  OUT UINTN  *SecretSize,
+  OUT UINT8  *Secret
   );
 
 /**
@@ -4464,6 +4488,7 @@ struct _EDKII_CRYPTO_PROTOCOL {
   EDKII_CRYPTO_EC_POINT_SET_COMPRESSED_COORDINATES    EcPointSetCompressedCoordinates;
   EDKII_CRYPTO_EC_DH_GEN_KEY                          EcDhGenKey;
   EDKII_CRYPTO_EC_DH_KEY_FREE                         EcDhKeyFree;
+  EDKII_CRYPTO_EC_DH_SET_PUB_KEY                      EcDhSetPubKey;
   EDKII_CRYPTO_EC_DH_GET_PUB_KEY                      EcDhGetPubKey;
   EDKII_CRYPTO_EC_DH_DERIVE_SECRET                    EcDhDeriveSecret;
   /// RSA PSS

@@ -320,6 +320,7 @@ typedef struct {
       UINT8    PointSetCompressedCoordinates : 1;
       UINT8    DhGenKey                      : 1;
       UINT8    DhKeyFree                     : 1;
+      UINT8    DhSetPubKey                   : 1;
       UINT8    DhGetPubKey                   : 1;
       UINT8    DhDeriveSecret                : 1;
     } Services;

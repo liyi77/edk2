@@ -2453,7 +2453,7 @@ HkdfSha256ExtractAndExpand (
 VOID *
 EFIAPI
 EcGroupInit (
-  IN UINTN  Group
+  IN UINTN  CryptoNid
   );
 
 /**
@@ -2747,7 +2747,7 @@ EcPointSetCompressedCoordinates (
 EFI_STATUS
 EFIAPI
 EcDhGenKey (
-  IN UINTN  Group,
+  IN  VOID  *EcGroup,
   OUT VOID  **PKey
   );
 
@@ -2760,6 +2760,28 @@ VOID
 EFIAPI
 EcDhKeyFree (
   IN VOID  *PKey
+  );
+
+/**
+  Set the public key.
+
+  @param[in, out]   PKey           ECDH Key object.
+  @param[in]        EcGroup        EC group object.
+  @param[in]        Public         Pointer to the buffer to receive generated public X,Y.
+  @param[in]        PublicSize     The size of Public buffer in bytes.
+  @param[in]        IncY           Flag to compressed coordinates.
+
+  @retval EFI_SUCCESS        On success.
+  @retval EFI_PROTOCOL_ERROR On failure.
+**/
+EFI_STATUS
+EFIAPI
+EcDhSetPubKey (
+  IN OUT  VOID     *PKey,
+  IN      VOID     *EcGroup,
+  IN      UINT8    *PublicKey,
+  IN      UINTN    PublicKeySize,
+  IN      UINT32   *IncY
   );
 
 /**
@@ -2776,8 +2798,10 @@ EcDhKeyFree (
 EFI_STATUS
 EFIAPI
 EcDhGetPubKey (
-  IN VOID   *PKey,
-  OUT VOID  *EcPoint
+  IN      VOID   *PKey,
+  IN      VOID   *EcGroup,
+  OUT     UINT8  *PublicKey,
+  IN OUT  UINTN  *PublicKeySize
   );
 
 /**
@@ -2803,10 +2827,10 @@ EFI_STATUS
 EFIAPI
 EcDhDeriveSecret (
   IN VOID    *PKey,
-  IN UINT8   Group,
-  IN VOID    *EcPointPublic,
+  IN VOID    *EcGroup,
+  IN VOID    *PeerPKey,
   OUT UINTN  *SecretSize,
-  OUT UINT8  **Secret
+  OUT UINT8  *Secret
   );
 
 // =====================================================================================

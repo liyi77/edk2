@@ -20,6 +20,10 @@
 #include <openssl/dh.h>
 #include <openssl/ec.h>
 
+// =====================================================================================
+//    Basic Elliptic Curve Primitives
+// =====================================================================================
+
 /**
   Return the Nid of certain ECC group.
 
@@ -83,7 +87,7 @@ EcGroupInit (
 }
 
 STATIC
-UINTN
+INT32
 EFIAPI
 EcGroupGetPrimeBytes (
   IN VOID *EcGroup
@@ -422,6 +426,10 @@ EcPointSetCompressedCoordinates (
          EFI_SUCCESS : EFI_INVALID_PARAMETER;
 }
 
+// =====================================================================================
+//    Elliptic Curve Diffie Hellman Primitives
+// =====================================================================================
+
 /**
   Generate a key using ECDH algorithm. Please note, this function uses
   pseudo random number generator. The caller must make sure RandomSeed()
@@ -501,9 +509,9 @@ EcDhKeyFree (
 **/
 EFI_STATUS
 EFIAPI
-EcSetPubKey (
+EcDhSetPubKey (
   IN OUT  VOID     *PKey,
-  IN      EC_GROUP *EcGroup,
+  IN      VOID     *EcGroup,
   IN      UINT8    *PublicKey,
   IN      UINTN    PublicKeySize,
   IN      UINT32   *IncY
@@ -513,7 +521,7 @@ EcSetPubKey (
   BIGNUM         *BnX;
   BIGNUM         *BnY;
   EC_POINT       *EcPoint;
-  UINTN          HalfSize;
+  INT32          HalfSize;
   EFI_STATUS     Status;
 
   if (PublicKey == NULL || EcGroup == NULL) {

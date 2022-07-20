@@ -4484,10 +4484,10 @@ CryptoServiceTlsGetCertRevocationList (
 VOID *
 EFIAPI
 CryptoServiceEcGroupInit (
-  IN UINTN  Group
+  IN UINTN  CryptoNid
   )
 {
-  return CALL_BASECRYPTLIB (Ec.Services.GroupInit, EcGroupInit, (Group), NULL);
+  return CALL_BASECRYPTLIB (Ec.Services.GroupInit, EcGroupInit, (CryptoNid), NULL);
 }
 
 /**
@@ -4823,11 +4823,11 @@ CryptoServiceEcPointSetCompressedCoordinates (
 EFI_STATUS
 EFIAPI
 CryptoServiceEcDhGenKey (
-  IN UINTN  Group,
+  IN  VOID  *EcGroup,
   OUT VOID  **PKey
   )
 {
-  return CALL_BASECRYPTLIB (Ec.Services.DhGenKey, EcDhGenKey, (Group, PKey), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Ec.Services.DhGenKey, EcDhGenKey, (EcGroup, PKey), EFI_UNSUPPORTED);
 }
 
 /**
@@ -4845,6 +4845,30 @@ CryptoServiceEcDhKeyFree (
 }
 
 /**
+  Set the public key.
+
+  @param[in, out]   PKey           ECDH Key object.
+  @param[in]        EcGroup        EC group object.
+  @param[in]        Public         Pointer to the buffer to receive generated public X,Y.
+  @param[in]        PublicSize     The size of Public buffer in bytes.
+  @param[in]        IncY           Flag to compressed coordinates.
+
+  @retval EFI_SUCCESS        On success.
+  @retval EFI_PROTOCOL_ERROR On failure.
+**/
+EFI_STATUS
+EFIAPI
+CryptoServiceEcDhSetPubKey (
+  IN OUT  VOID     *PKey,
+  IN      VOID     *EcGroup,
+  IN      UINT8    *PublicKey,
+  IN      UINTN    PublicKeySize,
+  IN      UINT32   *IncY
+  )
+{
+  return CALL_BASECRYPTLIB (Ec.Services.DhSetPubKey, EcDhSetPubKey, (PKey, EcGroup, PublicKey, PublicKeySize, IncY), EFI_UNSUPPORTED);
+}
+/**
   Get the public key EC point. The provided EC point's coordinates will
   be set accordingly.
 
@@ -4858,11 +4882,13 @@ CryptoServiceEcDhKeyFree (
 EFI_STATUS
 EFIAPI
 CryptoServiceEcDhGetPubKey (
-  IN VOID   *PKey,
-  OUT VOID  *EcPoint
+  IN      VOID   *PKey,
+  IN      VOID   *EcGroup,
+  OUT     UINT8  *PublicKey,
+  IN OUT  UINTN  *PublicKeySize
   )
 {
-  return CALL_BASECRYPTLIB (Ec.Services.DhGetPubKey, EcDhGetPubKey, (PKey, EcPoint), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Ec.Services.DhGetPubKey, EcDhGetPubKey, (PKey, EcGroup, PublicKey, PublicKeySize), EFI_UNSUPPORTED);
 }
 
 /**
@@ -4888,13 +4914,13 @@ EFI_STATUS
 EFIAPI
 CryptoServiceEcDhDeriveSecret (
   IN VOID    *PKey,
-  IN UINT8   Group,
-  IN VOID    *EcPointPublic,
+  IN VOID    *EcGroup,
+  IN VOID    *PeerPKey,
   OUT UINTN  *SecretSize,
-  OUT UINT8  **Secret
+  OUT UINT8  *Secret
   )
 {
-  return CALL_BASECRYPTLIB (Ec.Services.DhDeriveSecret, EcDhDeriveSecret, (PKey, Group, EcPointPublic, SecretSize, Secret), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Ec.Services.DhDeriveSecret, EcDhDeriveSecret, (PKey, EcGroup, PeerPKey, SecretSize, Secret), EFI_UNSUPPORTED);
 }
 
 /**
@@ -5723,6 +5749,7 @@ const EDKII_CRYPTO_PROTOCOL  mEdkiiCrypto = {
   CryptoServiceEcPointSetCompressedCoordinates,
   CryptoServiceEcDhGenKey,
   CryptoServiceEcDhKeyFree,
+  CryptoServiceEcDhSetPubKey,
   CryptoServiceEcDhGetPubKey,
   CryptoServiceEcDhDeriveSecret,
   /// RSA PSS
