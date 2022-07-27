@@ -529,11 +529,11 @@ EcDhSetPubKey (
   }
 
   HalfSize = EcGroupGetPrimeBytes (EcGroup);
-  if ((IncY == NULL) && (PublicKeySize != HalfSize * 2)) {
+  if ((IncY == NULL) && (PublicKeySize != (UINT32) HalfSize * 2)) {
     return EFI_INVALID_PARAMETER;
   }
   //Compressed coordinates
-  if ((IncY != NULL) && (PublicKeySize != HalfSize)) {
+  if ((IncY != NULL) && (PublicKeySize != (UINT32) HalfSize)) {
     return EFI_INVALID_PARAMETER;
   }
 
@@ -550,7 +550,7 @@ EcDhSetPubKey (
   }
 
 	if (IncY == NULL) {
-		BnY = BN_bin2bn(PublicKey + HalfSize, HalfSize, NULL);
+		BnY = BN_bin2bn(PublicKey + HalfSize, (UINT32) HalfSize, NULL);
 		if (BnY == NULL) {
 			goto Done;
     }
