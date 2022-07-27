@@ -89,6 +89,8 @@
 [LibraryClasses.common.DXE_SMM_DRIVER]
   SmmServicesTableLib|MdePkg/Library/SmmServicesTableLib/SmmServicesTableLib.inf
   MemoryAllocationLib|MdePkg/Library/SmmMemoryAllocationLib/SmmMemoryAllocationLib.inf
+  MmServicesTableLib|MdePkg/Library/MmServicesTableLib/MmServicesTableLib.inf
+  SynchronizationLib|MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf
 
 !if $(CRYPTO_SERVICES) IN "ALL NONE MIN_PEI MIN_DXE_MIN_SMM"
 [LibraryClasses]
@@ -144,6 +146,7 @@
   gEfiMdePkgTokenSpaceGuid.PcdDebugPropertyMask|0x0f
   gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80000000
   gEfiMdePkgTokenSpaceGuid.PcdReportStatusCodePropertyMask|0x06
+  gEfiCryptoPkgTokenSpaceGuid.PcdOpensslEcEnabled|TRUE
 
 !if $(CRYPTO_SERVICES) IN "PACKAGE ALL"
   gEfiCryptoPkgTokenSpaceGuid.PcdCryptoServiceFamilyEnable.HmacSha256.Family                        | PCD_CRYPTO_SERVICE_ENABLE_FAMILY

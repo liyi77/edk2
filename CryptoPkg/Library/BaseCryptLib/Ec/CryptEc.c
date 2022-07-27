@@ -687,7 +687,7 @@ EcDhComputeKey (
   IN OUT  VOID         *EcContext,
   IN      CONST UINT8  *PeerPublic,
   IN      UINTN        PeerPublicSize,
-  IN      CONST UINT8  *CompressFlag,
+  IN      CONST INT32  *CompressFlag,
   OUT     UINT8        *Key,
   IN OUT  UINTN        *KeySize
   )
@@ -702,7 +702,11 @@ EcDhComputeKey (
   INT32          OpenSslNid;
   UINTN          HalfSize;
 
-  if (EcContext == NULL || PeerPublic == NULL || KeySize == NULL || Key == NULL) {
+  if (EcContext == NULL || PeerPublic == NULL || KeySize == NULL) {
+    return FALSE;
+  }
+
+  if (Key == NULL && *KeySize != 0) {
     return FALSE;
   }
 
@@ -747,7 +751,6 @@ EcDhComputeKey (
       goto fail;
     }    
   }
-
 
   // Validate NIST ECDH public key
   OpenSslNid = EC_GROUP_get_curve_name (Group);
