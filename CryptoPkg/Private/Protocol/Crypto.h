@@ -3787,6 +3787,7 @@ BOOLEAN
   IN OUT  VOID         *EcContext,
   IN      CONST UINT8  *PeerPublic,
   IN      UINTN        PeerPublicSize,
+  IN      CONST UINT8  *CompressFlag,
   OUT     UINT8        *Key,
   IN OUT  UINTN        *KeySize
   );

@@ -4073,11 +4073,12 @@ EcDhComputeKey (
   IN OUT  VOID         *EcContext,
   IN      CONST UINT8  *PeerPublic,
   IN      UINTN        PeerPublicSize,
+  IN      CONST UINT8  *CompressFlag,
   OUT     UINT8        *Key,
   IN OUT  UINTN        *KeySize
   )
 {
-  CALL_CRYPTO_SERVICE (EcDhComputeKey, (EcContext, PeerPublic, PeerPublicSize, Key, KeySize), FALSE);
+  CALL_CRYPTO_SERVICE (EcDhComputeKey, (EcContext, PeerPublic, PeerPublicSize, CompressFlag, Key, KeySize), FALSE);
 }
 
 // =====================================================================================

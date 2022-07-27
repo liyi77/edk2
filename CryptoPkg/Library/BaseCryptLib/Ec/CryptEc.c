@@ -660,6 +660,7 @@ fail:
   based on its own context including value of curve parameter and random secret.
   X is the first half of PeerPublic with size being PeerPublicSize / 2,
   Y is the second half of PeerPublic with size being PeerPublicSize / 2.
+  If public key is compressed, the PeerPublic will only contain half key (X).
   If EcContext is NULL, then return FALSE.
   If PeerPublic is NULL, then return FALSE.
   If PeerPublicSize is 0, then return FALSE.
@@ -671,6 +672,7 @@ fail:
   @param[in, out]  EcContext          Pointer to the EC context.
   @param[in]       PeerPublic         Pointer to the peer's public X,Y.
   @param[in]       PeerPublicSize     Size of peer's public X,Y in bytes.
+  @param[in]       CompressFlag       Flag of key is compressed or not.
   @param[out]      Key                Pointer to the buffer to receive generated key.
   @param[in, out]  KeySize            On input, the size of Key buffer in bytes.
                                       On output, the size of data returned in Key buffer in bytes.
@@ -684,6 +686,7 @@ EcDhComputeKey (
   IN OUT  VOID         *EcContext,
   IN      CONST UINT8  *PeerPublic,
   IN      UINTN        PeerPublicSize,
+  IN      CONST UINT8  *CompressFlag,
   OUT     UINT8        *Key,
   IN OUT  UINTN        *KeySize
   )
@@ -709,7 +712,10 @@ EcDhComputeKey (
   EcKey = (EC_KEY *) EcContext;
   Group = EC_KEY_get0_group (EcKey);
   HalfSize = (EC_GROUP_get_degree (Group) + 7) / 8;
-  if (PeerPublicSize != HalfSize * 2) {
+  if (CompressFlag == NULL && PeerPublicSize != HalfSize * 2) {
+    return FALSE;
+  }
+  if (CompressFlag != NULL && PeerPublicSize != HalfSize) {
     return FALSE;
   }
   if (*KeySize < HalfSize) {
@@ -721,15 +727,26 @@ EcDhComputeKey (
   RetVal = FALSE;
   Point = NULL;
   BnX = BN_bin2bn (PeerPublic, (INT32) HalfSize, NULL);
-  BnY = BN_bin2bn (PeerPublic + HalfSize, (INT32) HalfSize, NULL);
+  BnY = NULL;
   Point = EC_POINT_new (Group);
-  if (BnX == NULL || BnY == NULL || Point == NULL) {
+  if (BnX == NULL || Point == NULL) {
     goto fail;
   }
 
-  if (EC_POINT_set_affine_coordinates(Group, Point, BnX, BnY, NULL) != 1) {
-    goto fail;
+  if (CompressFlag == NULL) {
+    BnY = BN_bin2bn (PeerPublic + HalfSize, (INT32) HalfSize, NULL);
+    if (BnY == NULL) {
+      goto fail;
+    }
+    if (EC_POINT_set_affine_coordinates (Group, Point, BnX, BnY, NULL) != 1) {
+      goto fail;
+    }
+  } else {
+    if (EC_POINT_set_compressed_coordinates (Group, Point, BnX, *CompressFlag, NULL) != 1) {
+      goto fail;
+    }    
   }
+
 
   // Validate NIST ECDH public key
   OpenSslNid = EC_GROUP_get_curve_name (Group);

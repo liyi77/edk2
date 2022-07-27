@@ -4930,11 +4930,12 @@ CryptoServiceEcDhComputeKey (
   IN OUT  VOID         *EcContext,
   IN      CONST UINT8  *PeerPublic,
   IN      UINTN        PeerPublicSize,
+  IN      CONST UINT8  *CompressFlag,
   OUT     UINT8        *Key,
   IN OUT  UINTN        *KeySize
   )
 {
-  return CALL_BASECRYPTLIB (Ec.Services.DhComputeKey, EcDhComputeKey, (EcContext, PeerPublic, PeerPublicSize, Key, KeySize), FALSE);
+  return CALL_BASECRYPTLIB (Ec.Services.DhComputeKey, EcDhComputeKey, (EcContext, PeerPublic, PeerPublicSize, CompressFlag ,Key, KeySize), FALSE);
 }
 
 /**
