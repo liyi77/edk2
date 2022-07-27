@@ -318,11 +318,11 @@ typedef struct {
       UINT8    PointIsAtInfinity             : 1;
       UINT8    PointEqual                    : 1;
       UINT8    PointSetCompressedCoordinates : 1;
-      UINT8    DhGenKey                      : 1;
-      UINT8    DhKeyFree                     : 1;
-      UINT8    DhSetPubKey                   : 1;
+      UINT8    DhNewByNid                    : 1;
+      UINT8    DhFree                        : 1;
+      UINT8    DhGenerateKey                 : 1;
       UINT8    DhGetPubKey                   : 1;
-      UINT8    DhDeriveSecret                : 1;
+      UINT8    DhComputeKey                  : 1;
     } Services;
     UINT32    Family;
   } Ec;

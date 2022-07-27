@@ -4808,119 +4808,133 @@ CryptoServiceEcPointSetCompressedCoordinates (
 }
 
 /**
-  Generate a key using ECDH algorithm. Please note, this function uses
-  pseudo random number generator. The caller must make sure RandomSeed()
-  function was properly called before.
-
-  @param[in]  Group    Identifying number for the ECC group (IANA "Group
-                       Description" attribute registry for RFC 2409).
-  @param[out] PKey     Pointer to an object that will hold the ECDH key.
-
-  @retval EFI_SUCCESS        On success.
-  @retval EFI_UNSUPPORTED    ECC group not supported.
-  @retval EFI_PROTOCOL_ERROR On failure.
+  Allocates and Initializes one Elliptic Curve Context for subsequent use
+  with the NID.
+  
+  @param[in]  Nid cipher NID
+  @return     Pointer to the Elliptic Curve Context that has been initialized.
+              If the allocations fails, EcNewByNid() returns NULL.
 **/
-EFI_STATUS
+VOID *
 EFIAPI
-CryptoServiceEcDhGenKey (
-  IN  VOID  *EcGroup,
-  OUT VOID  **PKey
+CryptoServiceEcDhNewByNid (
+  IN UINTN  Nid
   )
 {
-  return CALL_BASECRYPTLIB (Ec.Services.DhGenKey, EcDhGenKey, (EcGroup, PKey), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Ec.Services.DhNewByNid, EcDhNewByNid, (Nid), NULL);
 }
 
 /**
-  Free ECDH Key object previously created by EcDhGenKey().
+  Release the specified EC context.
 
-  @param[in] PKey  ECDH Key.
+  @param[in]  EcContext  Pointer to the EC context to be released.
 **/
 VOID
 EFIAPI
-CryptoServiceEcDhKeyFree (
-  IN VOID  *PKey
+CryptoServiceEcDhFree (
+  IN  VOID  *EcContext
   )
 {
-  CALL_VOID_BASECRYPTLIB (Ec.Services.DhKeyFree, EcDhKeyFree, (PKey));
+  CALL_VOID_BASECRYPTLIB (Ec.Services.DhFree, EcDhFree, (EcContext));
 }
 
 /**
-  Set the public key.
-
-  @param[in, out]   PKey           ECDH Key object.
-  @param[in]        EcGroup        EC group object.
-  @param[in]        Public         Pointer to the buffer to receive generated public X,Y.
-  @param[in]        PublicSize     The size of Public buffer in bytes.
-  @param[in]        IncY           Flag to compressed coordinates.
-
-  @retval EFI_SUCCESS        On success.
-  @retval EFI_PROTOCOL_ERROR On failure.
+  Generates EC key and returns EC public key (X, Y), Please note, this function uses
+  pseudo random number generator. The caller must make sure RandomSeed()
+  function was properly called before.
+  The Ec context should be correctly initialized by EcNewByNid.
+  This function generates random secret, and computes the public key (X, Y), which is
+  returned via parameter Public, PublicSize.
+  X is the first half of Public with size being PublicSize / 2,
+  Y is the second half of Public with size being PublicSize / 2.
+  EC context is updated accordingly.
+  If the Public buffer is too small to hold the public X, Y, FALSE is returned and
+  PublicSize is set to the required buffer size to obtain the public X, Y.
+  For P-256, the PublicSize is 64. First 32-byte is X, Second 32-byte is Y.
+  For P-384, the PublicSize is 96. First 48-byte is X, Second 48-byte is Y.
+  For P-521, the PublicSize is 132. First 66-byte is X, Second 66-byte is Y.
+  If EcContext is NULL, then return FALSE.
+  If PublicSize is NULL, then return FALSE.
+  If PublicSize is large enough but Public is NULL, then return FALSE.
+  @param[in, out]  EcContext      Pointer to the EC context.
+  @param[out]      Public         Pointer to the buffer to receive generated public X,Y.
+  @param[in, out]  PublicSize     On input, the size of Public buffer in bytes.
+                                  On output, the size of data returned in Public buffer in bytes.
+  @retval TRUE   EC public X,Y generation succeeded.
+  @retval FALSE  EC public X,Y generation failed.
+  @retval FALSE  PublicSize is not large enough.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
-CryptoServiceEcDhSetPubKey (
-  IN OUT  VOID     *PKey,
-  IN      VOID     *EcGroup,
-  IN      UINT8    *PublicKey,
-  IN      UINTN    PublicKeySize,
-  IN      UINT32   *IncY
-  )
-{
-  return CALL_BASECRYPTLIB (Ec.Services.DhSetPubKey, EcDhSetPubKey, (PKey, EcGroup, PublicKey, PublicKeySize, IncY), EFI_UNSUPPORTED);
-}
-/**
-  Get the public key EC point. The provided EC point's coordinates will
-  be set accordingly.
-
-  @param[in]  PKey     ECDH Key object.
-  @param[out] EcPoint  Properly initialized EC Point to hold the public key.
-
-  @retval EFI_SUCCESS        On success.
-  @retval EFI_INVALID_PARAMETER EcPoint should be initialized properly.
-  @retval EFI_PROTOCOL_ERROR On failure.
-**/
-EFI_STATUS
-EFIAPI
-CryptoServiceEcDhGetPubKey (
-  IN      VOID   *PKey,
-  IN      VOID   *EcGroup,
+CryptoServiceEcDhGenerateKey (
+  IN OUT  VOID   *EcContext,
   OUT     UINT8  *PublicKey,
   IN OUT  UINTN  *PublicKeySize
   )
 {
-  return CALL_BASECRYPTLIB (Ec.Services.DhGetPubKey, EcDhGetPubKey, (PKey, EcGroup, PublicKey, PublicKeySize), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Ec.Services.DhGenerateKey, EcDhGenerateKey, (EcContext, PublicKey, PublicKeySize), FALSE);
 }
 
 /**
-  Derive ECDH secret.
-
-  @param[in]  PKey           ECDH Key object.
-  @param[in]  Group          Identifying number for the ECC group (IANA "Group
-                             Description" attribute registry for RFC 2409).
-  @param[in]  EcPointPublic  Peer public key. Certain sanity checks on the key
-                             will be performed to confirm that it is valid..
-  @param[out] SecretSize     On success, holds secret size.
-  @param[out] Secret         On success, holds the derived secret.
-                             Should be freed by caller using FreePool()
-                             function.
-
-  @retval EFI_SUCCESS        On success.
-  @retval EFI_UNSUPPORTED       ECC group not supported.
-  @retval EFI_INVALID_PARAMETER Secret and SecretSize should be initialized properly.
-  @retval EFI_INVALID_PARAMETER Public key should be checked against NIST.SP.800-56Ar2.
-  @retval EFI_PROTOCOL_ERROR On failure.
+  Gets the public key component from the established EC context.
+  The Ec context should be correctly initialized by EcNewByNid, and successfully 
+  generate key pair from EcGenerateKey().
+  For P-256, the PublicSize is 64. First 32-byte is X, Second 32-byte is Y.
+  For P-384, the PublicSize is 96. First 48-byte is X, Second 48-byte is Y.
+  For P-521, the PublicSize is 132. First 66-byte is X, Second 66-byte is Y.
+  @param[in, out]  EcContext      Pointer to EC context being set.
+  @param[out]      Public         Pointer to the buffer to receive generated public X,Y.
+  @param[in, out]  PublicSize     On input, the size of Public buffer in bytes.
+                                  On output, the size of data returned in Public buffer in bytes.
+  @retval  TRUE   EC key component was retrieved successfully.
+  @retval  FALSE  Invalid EC key component.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
-CryptoServiceEcDhDeriveSecret (
-  IN VOID    *PKey,
-  IN VOID    *EcGroup,
-  IN VOID    *PeerPKey,
-  OUT UINTN  *SecretSize,
-  OUT UINT8  *Secret
+CryptoServiceEcDhGetPubKey (
+  IN OUT  VOID   *EcContext,
+  OUT     UINT8  *PublicKey,
+  IN OUT  UINTN  *PublicKeySize
   )
 {
-  return CALL_BASECRYPTLIB (Ec.Services.DhDeriveSecret, EcDhDeriveSecret, (PKey, EcGroup, PeerPKey, SecretSize, Secret), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Ec.Services.DhGetPubKey, EcDhGetPubKey, (EcContext, PublicKey, PublicKeySize), FALSE);
+}
+
+/**
+  Computes exchanged common key.
+  Given peer's public key (X, Y), this function computes the exchanged common key,
+  based on its own context including value of curve parameter and random secret.
+  X is the first half of PeerPublic with size being PeerPublicSize / 2,
+  Y is the second half of PeerPublic with size being PeerPublicSize / 2.
+  If EcContext is NULL, then return FALSE.
+  If PeerPublic is NULL, then return FALSE.
+  If PeerPublicSize is 0, then return FALSE.
+  If Key is NULL, then return FALSE.
+  If KeySize is not large enough, then return FALSE.
+  For P-256, the PeerPublicSize is 64. First 32-byte is X, Second 32-byte is Y.
+  For P-384, the PeerPublicSize is 96. First 48-byte is X, Second 48-byte is Y.
+  For P-521, the PeerPublicSize is 132. First 66-byte is X, Second 66-byte is Y.
+  @param[in, out]  EcContext          Pointer to the EC context.
+  @param[in]       PeerPublic         Pointer to the peer's public X,Y.
+  @param[in]       PeerPublicSize     Size of peer's public X,Y in bytes.
+  @param[out]      Key                Pointer to the buffer to receive generated key.
+  @param[in, out]  KeySize            On input, the size of Key buffer in bytes.
+                                      On output, the size of data returned in Key buffer in bytes.
+  @retval TRUE   EC exchanged key generation succeeded.
+  @retval FALSE  EC exchanged key generation failed.
+  @retval FALSE  KeySize is not large enough.
+**/
+BOOLEAN
+EFIAPI
+CryptoServiceEcDhComputeKey (
+  IN OUT  VOID         *EcContext,
+  IN      CONST UINT8  *PeerPublic,
+  IN      UINTN        PeerPublicSize,
+  OUT     UINT8        *Key,
+  IN OUT  UINTN        *KeySize
+  )
+{
+  return CALL_BASECRYPTLIB (Ec.Services.DhComputeKey, EcDhComputeKey, (EcContext, PeerPublic, PeerPublicSize, Key, KeySize), FALSE);
 }
 
 /**
@@ -5747,11 +5761,11 @@ const EDKII_CRYPTO_PROTOCOL  mEdkiiCrypto = {
   CryptoServiceEcPointIsAtInfinity,
   CryptoServiceEcPointEqual,
   CryptoServiceEcPointSetCompressedCoordinates,
-  CryptoServiceEcDhGenKey,
-  CryptoServiceEcDhKeyFree,
-  CryptoServiceEcDhSetPubKey,
+  CryptoServiceEcDhNewByNid,
+  CryptoServiceEcDhFree,
+  CryptoServiceEcDhGenerateKey,
   CryptoServiceEcDhGetPubKey,
-  CryptoServiceEcDhDeriveSecret,
+  CryptoServiceEcDhComputeKey,
   /// RSA PSS
   CryptoServiceRsaPssSign,
   CryptoServiceRsaPssVerify,
