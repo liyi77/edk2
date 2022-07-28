@@ -5,13 +5,7 @@
 
 **/
 
-#include <Base.h>
-#include <Library/BaseLib.h>
-#include <Library/BaseMemoryLib.h>
-#include <Library/MemoryAllocationLib.h>
-#include <Library/BaseCryptLib.h>
-#include <Library/DebugLib.h>
-#include <Library/PcdLib.h>
+#include "InternalCryptLib.h"
 #include <openssl/bn.h>
 
 /**
@@ -94,10 +88,10 @@ BigNumFree (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA + BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumAdd (
   IN CONST VOID  *BnA,
@@ -105,7 +99,7 @@ BigNumAdd (
   OUT VOID       *BnRes
   )
 {
-  return BN_add (BnRes, BnA, BnB) ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
+  return (BOOLEAN) BN_add (BnRes, BnA, BnB);
 }
 
 /**
@@ -117,10 +111,10 @@ BigNumAdd (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA - BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumSub (
   IN CONST VOID  *BnA,
@@ -128,7 +122,7 @@ BigNumSub (
   OUT VOID       *BnRes
   )
 {
-  return BN_sub (BnRes, BnA, BnB) ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
+  return (BOOLEAN) BN_sub (BnRes, BnA, BnB);
 }
 
 /**
@@ -140,11 +134,10 @@ BigNumSub (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA % BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumMod (
   IN CONST VOID  *BnA,
@@ -152,18 +145,18 @@ BigNumMod (
   OUT VOID       *BnRes
   )
 {
-  int     Res;
-  BN_CTX  *Bnctx;
+  BOOLEAN RetVal;
+  BN_CTX  *Ctx;
 
-  Bnctx = BN_CTX_new ();
-  if (!Bnctx) {
-    return EFI_OUT_OF_RESOURCES;
+  Ctx = BN_CTX_new ();
+  if (Ctx == NULL) {
+    return FALSE;
   }
 
-  Res = BN_mod (BnRes, BnA, BnB, Bnctx);
-  BN_CTX_free (Bnctx);
+  RetVal = (BOOLEAN) BN_mod (BnRes, BnA, BnB, Ctx);
+  BN_CTX_free (Ctx);
 
-  return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
+  return RetVal;
 }
 
 /**
@@ -176,11 +169,10 @@ BigNumMod (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result of (BnA ^ BnP) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumExpMod (
   IN CONST VOID  *BnA,
@@ -189,18 +181,18 @@ BigNumExpMod (
   OUT VOID       *BnRes
   )
 {
-  int     Res;
-  BN_CTX  *Bnctx;
+  BOOLEAN RetVal;
+  BN_CTX  *Ctx;
 
-  Bnctx = BN_CTX_new ();
-  if (!Bnctx) {
-    return EFI_OUT_OF_RESOURCES;
+  Ctx = BN_CTX_new ();
+  if (Ctx == NULL) {
+    return FALSE;
   }
 
-  Res = BN_mod_exp (BnRes, BnA, BnP, BnM, Bnctx);
-  BN_CTX_free (Bnctx);
+  RetVal = (BOOLEAN) BN_mod_exp (BnRes, BnA, BnP, BnM, Ctx);
 
-  return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
+  BN_CTX_free (Ctx);
+  return RetVal;
 }
 
 /**
@@ -212,11 +204,10 @@ BigNumExpMod (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA * BnRes) % BnM == 1.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumInverseMod (
   IN CONST VOID  *BnA,
@@ -224,18 +215,21 @@ BigNumInverseMod (
   OUT VOID       *BnRes
   )
 {
-  BIGNUM  *Res;
-  BN_CTX  *Bnctx;
+  BOOLEAN RetVal;
+  BN_CTX  *Ctx;
 
-  Bnctx = BN_CTX_new ();
-  if (!Bnctx) {
-    return EFI_OUT_OF_RESOURCES;
+  Ctx = BN_CTX_new ();
+  if (Ctx == NULL) {
+    return FALSE;
   }
 
-  Res = BN_mod_inverse (BnRes, BnA, BnM, Bnctx);
-  BN_CTX_free (Bnctx);
+  RetVal = FALSE;
+  if (BN_mod_inverse (BnRes, BnA, BnM, Ctx) != NULL) {
+    RetVal = TRUE;
+  };
 
-  return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
+  BN_CTX_free (Ctx);
+  return RetVal;
 }
 
 /**
@@ -244,33 +238,32 @@ BigNumInverseMod (
   by calling to BigNumInit() or BigNumFromBin() functions.
 
   @param[in]   BnA     Big number.
-  @param[in]   BnM     Big number (modulo).
+  @param[in]   BnM     Big number.
   @param[out]  BnRes   The result, such that BnA / BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumDiv (
   IN CONST VOID  *BnA,
-  IN CONST VOID  *BnM,
+  IN CONST VOID  *BnB,
   OUT VOID       *BnRes
   )
 {
-  int     Res;
-  BN_CTX  *Bnctx;
+  BOOLEAN RetVal;
+  BN_CTX  *Ctx;
 
-  Bnctx = BN_CTX_new ();
-  if (!Bnctx) {
-    return EFI_OUT_OF_RESOURCES;
+  Ctx = BN_CTX_new ();
+  if (Ctx == NULL) {
+    return FALSE;
   }
 
-  Res = BN_div (BnRes, NULL, BnA, BnM, Bnctx);
-  BN_CTX_free (Bnctx);
+  RetVal = (BOOLEAN) BN_div (BnRes, NULL, BnA, BnB, Ctx);
+  BN_CTX_free (Ctx);
 
-  return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
+  return RetVal;
 }
 
 /**
@@ -283,11 +276,10 @@ BigNumDiv (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA * BnB) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumMulMod (
   IN CONST VOID  *BnA,
@@ -296,18 +288,18 @@ BigNumMulMod (
   OUT VOID       *BnRes
   )
 {
-  int     Res;
-  BN_CTX  *Bnctx;
+  BOOLEAN RetVal;
+  BN_CTX  *Ctx;
 
-  Bnctx = BN_CTX_new ();
-  if (!Bnctx) {
-    return EFI_OUT_OF_RESOURCES;
+  Ctx = BN_CTX_new ();
+  if (Ctx == NULL) {
+    return FALSE;
   }
 
-  Res = BN_mod_mul (BnRes, BnA, BnB, BnM, Bnctx);
-  BN_CTX_free (Bnctx);
+  RetVal = (BOOLEAN) BN_mod_mul (BnRes, BnA, BnB, BnM, Ctx);
+  BN_CTX_free (Ctx);
 
-  return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
+  return RetVal;
 }
 
 /**
@@ -378,7 +370,7 @@ BigNumIsWord (
   IN UINTN       Num
   )
 {
-  return !!BN_is_word (Bn, Num);
+  return (BOOLEAN) BN_is_word (Bn, Num);
 }
 
 /**
@@ -395,7 +387,7 @@ BigNumIsOdd (
   IN CONST VOID  *Bn
   )
 {
-  return !!BN_is_odd (Bn);
+  return (BOOLEAN) BN_is_odd (Bn);
 }
 
 /**
@@ -438,25 +430,21 @@ BigNumValueOne (
   by calling to BigNumInit() or BigNumFromBin() functions.
 
   @param[in]   Bn      Big number.
-  @param[in]   n       Number of bits to shift.
+  @param[in]   N       Number of bits to shift.
   @param[out]  BnRes   The result.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumRShift (
   IN CONST VOID  *Bn,
-  IN UINTN       n,
+  IN UINTN       N,
   OUT VOID       *BnRes
   )
 {
-  if (BN_rshift (BnRes, Bn, (int)n) == 1) {
-    return EFI_SUCCESS;
-  } else {
-    return EFI_PROTOCOL_ERROR;
-  }
+  return (BOOLEAN) BN_rshift (BnRes, Bn, (INT32) N);
 }
 
 /**
@@ -468,7 +456,7 @@ BigNumRShift (
 **/
 VOID
 EFIAPI
-BigNumConsttime (
+BigNumConstTime (
   IN VOID  *Bn
   )
 {
@@ -484,11 +472,10 @@ BigNumConsttime (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA ^ 2) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumSqrMod (
   IN CONST VOID  *BnA,
@@ -496,18 +483,18 @@ BigNumSqrMod (
   OUT VOID       *BnRes
   )
 {
-  int     Res;
+  BOOLEAN RetVal;
   BN_CTX  *Ctx;
 
   Ctx = BN_CTX_new ();
-  if (!Ctx) {
-    return EFI_OUT_OF_RESOURCES;
+  if (Ctx == NULL) {
+    return FALSE;
   }
 
-  Res = BN_mod_sqr (BnRes, BnA, BnM, Ctx);
+  RetVal = (BOOLEAN) BN_mod_sqr (BnRes, BnA, BnM, Ctx);
   BN_CTX_free (Ctx);
 
-  return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
+  return RetVal;
 }
 
 /**
@@ -546,17 +533,17 @@ BigNumContextFree (
   @param[in]   Bn     Big number to set.
   @param[in]   Val    Value to set.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumSetUint (
   IN VOID   *Bn,
   IN UINTN  Val
   )
 {
-  return BN_set_word (Bn, Val) == 1 ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
+  return (BOOLEAN) BN_set_word (Bn, Val);
 }
 
 /**
@@ -567,11 +554,10 @@ BigNumSetUint (
   @param[in]   BnM       Big number (modulo).
   @param[out]  BnRes     The result, such that (BnA + BnB) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumAddMod (
   IN CONST VOID  *BnA,
@@ -580,16 +566,16 @@ BigNumAddMod (
   OUT VOID       *BnRes
   )
 {
-  int     Res;
-  BN_CTX  *Bnctx;
+  BOOLEAN RetVal;
+  BN_CTX  *Ctx;
 
-  Bnctx = BN_CTX_new ();
-  if (!Bnctx) {
-    return EFI_OUT_OF_RESOURCES;
+  Ctx = BN_CTX_new ();
+  if (Ctx == NULL) {
+    return FALSE;
   }
 
-  Res = BN_mod_add (BnRes, BnA, BnB, BnM, Bnctx);
-  BN_CTX_free (Bnctx);
+  RetVal = (BOOLEAN) BN_mod_add (BnRes, BnA, BnB, BnM, Ctx);
+  BN_CTX_free (Ctx);
 
-  return Res ? EFI_SUCCESS : EFI_PROTOCOL_ERROR;
+  return RetVal;
 }

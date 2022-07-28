@@ -3693,10 +3693,10 @@ BigNumFree (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA + BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumAdd (
   IN CONST VOID  *BnA,
@@ -3704,7 +3704,7 @@ BigNumAdd (
   OUT VOID       *BnRes
   )
 {
-  CALL_CRYPTO_SERVICE (BigNumAdd, (BnA, BnB, BnRes), EFI_UNSUPPORTED);
+  CALL_CRYPTO_SERVICE (BigNumAdd, (BnA, BnB, BnRes), FALSE);
 }
 
 /**
@@ -3716,10 +3716,10 @@ BigNumAdd (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA - BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumSub (
   IN CONST VOID  *BnA,
@@ -3727,7 +3727,7 @@ BigNumSub (
   OUT VOID       *BnRes
   )
 {
-  CALL_CRYPTO_SERVICE (BigNumSub, (BnA, BnB, BnRes), EFI_UNSUPPORTED);
+  CALL_CRYPTO_SERVICE (BigNumSub, (BnA, BnB, BnRes), FALSE);
 }
 
 /**
@@ -3739,11 +3739,10 @@ BigNumSub (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA % BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumMod (
   IN CONST VOID  *BnA,
@@ -3751,7 +3750,7 @@ BigNumMod (
   OUT VOID       *BnRes
   )
 {
-  CALL_CRYPTO_SERVICE (BigNumMod, (BnA, BnB, BnRes), EFI_UNSUPPORTED);
+  CALL_CRYPTO_SERVICE (BigNumMod, (BnA, BnB, BnRes), FALSE);
 }
 
 /**
@@ -3764,11 +3763,10 @@ BigNumMod (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result of (BnA ^ BnP) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumExpMod (
   IN CONST VOID  *BnA,
@@ -3777,7 +3775,7 @@ BigNumExpMod (
   OUT VOID       *BnRes
   )
 {
-  CALL_CRYPTO_SERVICE (BigNumExpMod, (BnA, BnP, BnM, BnRes), EFI_UNSUPPORTED);
+  CALL_CRYPTO_SERVICE (BigNumExpMod, (BnA, BnP, BnM, BnRes), FALSE);
 }
 
 /**
@@ -3789,11 +3787,10 @@ BigNumExpMod (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA * BnRes) % BnM == 1.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumInverseMod (
   IN CONST VOID  *BnA,
@@ -3801,7 +3798,7 @@ BigNumInverseMod (
   OUT VOID       *BnRes
   )
 {
-  CALL_CRYPTO_SERVICE (BigNumInverseMod, (BnA, BnM, BnRes), EFI_UNSUPPORTED);
+  CALL_CRYPTO_SERVICE (BigNumInverseMod, (BnA, BnM, BnRes), FALSE);
 }
 
 /**
@@ -3810,22 +3807,21 @@ BigNumInverseMod (
   by calling to BigNumInit() or BigNumFromBin() functions.
 
   @param[in]   BnA     Big number.
-  @param[in]   BnM     Big number (modulo).
+  @param[in]   BnB     Big number.
   @param[out]  BnRes   The result, such that BnA / BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumDiv (
   IN CONST VOID  *BnA,
-  IN CONST VOID  *BnM,
+  IN CONST VOID  *BnB,
   OUT VOID       *BnRes
   )
 {
-  CALL_CRYPTO_SERVICE (BigNumDiv, (BnA, BnM, BnRes), EFI_UNSUPPORTED);
+  CALL_CRYPTO_SERVICE (BigNumDiv, (BnA, BnB, BnRes), FALSE);
 }
 
 /**
@@ -3838,11 +3834,10 @@ BigNumDiv (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA * BnB) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumMulMod (
   IN CONST VOID  *BnA,
@@ -3851,7 +3846,7 @@ BigNumMulMod (
   OUT VOID       *BnRes
   )
 {
-  CALL_CRYPTO_SERVICE (BigNumMulMod, (BnA, BnB, BnM, BnRes), EFI_UNSUPPORTED);
+  CALL_CRYPTO_SERVICE (BigNumMulMod, (BnA, BnB, BnM, BnRes), FALSE);
 }
 
 /**
@@ -3982,21 +3977,21 @@ BigNumValueOne (
   by calling to BigNumInit() or BigNumFromBin() functions.
 
   @param[in]   Bn      Big number.
-  @param[in]   n       Number of bits to shift.
+  @param[in]   N       Number of bits to shift.
   @param[out]  BnRes   The result.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumRShift (
   IN CONST VOID  *Bn,
-  IN UINTN       n,
+  IN UINTN       N,
   OUT VOID       *BnRes
   )
 {
-  CALL_CRYPTO_SERVICE (BigNumRShift, (Bn, n, BnRes), EFI_UNSUPPORTED);
+  CALL_CRYPTO_SERVICE (BigNumRShift, (Bn, N, BnRes), FALSE);
 }
 
 /**
@@ -4008,11 +4003,11 @@ BigNumRShift (
 **/
 VOID
 EFIAPI
-BigNumConsttime (
+BigNumConstTime (
   IN VOID  *Bn
   )
 {
-  CALL_VOID_CRYPTO_SERVICE (BigNumConsttime, (Bn));
+  CALL_VOID_CRYPTO_SERVICE (BigNumConstTime, (Bn));
 }
 
 /**
@@ -4024,11 +4019,10 @@ BigNumConsttime (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA ^ 2) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumSqrMod (
   IN CONST VOID  *BnA,
@@ -4036,7 +4030,7 @@ BigNumSqrMod (
   OUT VOID       *BnRes
   )
 {
-  CALL_CRYPTO_SERVICE (BigNumSqrMod, (BnA, BnM, BnRes), EFI_UNSUPPORTED);
+  CALL_CRYPTO_SERVICE (BigNumSqrMod, (BnA, BnM, BnRes), FALSE);
 }
 
 /**
@@ -4075,17 +4069,17 @@ BigNumContextFree (
   @param[in]   Bn     Big number to set.
   @param[in]   Val    Value to set.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumSetUint (
   IN VOID   *Bn,
   IN UINTN  Val
   )
 {
-  CALL_CRYPTO_SERVICE (BigNumSetUint, (Bn, Val), EFI_UNSUPPORTED);
+  CALL_CRYPTO_SERVICE (BigNumSetUint, (Bn, Val), FALSE);
 }
 
 /**
@@ -4096,11 +4090,10 @@ BigNumSetUint (
   @param[in]   BnM       Big number (modulo).
   @param[out]  BnRes     The result, such that (BnA + BnB) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumAddMod (
   IN CONST VOID  *BnA,
@@ -4109,5 +4102,5 @@ BigNumAddMod (
   OUT VOID       *BnRes
   )
 {
-  CALL_CRYPTO_SERVICE (BigNumAddMod, (BnA, BnB, BnM, BnRes), EFI_UNSUPPORTED);
+  CALL_CRYPTO_SERVICE (BigNumAddMod, (BnA, BnB, BnM, BnRes), FALSE);
 }

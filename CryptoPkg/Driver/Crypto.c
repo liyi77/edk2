@@ -4582,6 +4582,10 @@ CryptoServiceParallelHash256HashAll (
   return CALL_BASECRYPTLIB (ParallelHash.Services.HashAll, ParallelHash256HashAll, (Input, InputByteLen, BlockSize, Output, OutputByteLen, Customization, CustomByteLen), FALSE);
 }
 
+// =====================================================================================
+//    Big number primitives
+// =====================================================================================
+
 /**
   Allocate new Big Number.
 
@@ -4658,10 +4662,10 @@ CryptoServiceBigNumFree (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA + BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 CryptoServiceBigNumAdd (
   IN CONST VOID  *BnA,
@@ -4669,7 +4673,7 @@ CryptoServiceBigNumAdd (
   OUT VOID       *BnRes
   )
 {
-  return CALL_BASECRYPTLIB (Bn.Services.Add, BigNumAdd, (BnA, BnB, BnRes), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Bn.Services.Add, BigNumAdd, (BnA, BnB, BnRes), FALSE);
 }
 
 /**
@@ -4681,10 +4685,10 @@ CryptoServiceBigNumAdd (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA - BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 CryptoServiceBigNumSub (
   IN CONST VOID  *BnA,
@@ -4692,7 +4696,7 @@ CryptoServiceBigNumSub (
   OUT VOID       *BnRes
   )
 {
-  return CALL_BASECRYPTLIB (Bn.Services.Sub, BigNumSub, (BnA, BnB, BnRes), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Bn.Services.Sub, BigNumSub, (BnA, BnB, BnRes), FALSE);
 }
 
 /**
@@ -4704,11 +4708,10 @@ CryptoServiceBigNumSub (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA % BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 CryptoServiceBigNumMod (
   IN CONST VOID  *BnA,
@@ -4716,7 +4719,7 @@ CryptoServiceBigNumMod (
   OUT VOID       *BnRes
   )
 {
-  return CALL_BASECRYPTLIB (Bn.Services.Mod, BigNumMod, (BnA, BnB, BnRes), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Bn.Services.Mod, BigNumMod, (BnA, BnB, BnRes), FALSE);
 }
 
 /**
@@ -4729,11 +4732,10 @@ CryptoServiceBigNumMod (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result of (BnA ^ BnP) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 CryptoServiceBigNumExpMod (
   IN CONST VOID  *BnA,
@@ -4742,7 +4744,7 @@ CryptoServiceBigNumExpMod (
   OUT VOID       *BnRes
   )
 {
-  return CALL_BASECRYPTLIB (Bn.Services.ExpMod, BigNumExpMod, (BnA, BnP, BnM, BnRes), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Bn.Services.ExpMod, BigNumExpMod, (BnA, BnP, BnM, BnRes), FALSE);
 }
 
 /**
@@ -4754,11 +4756,10 @@ CryptoServiceBigNumExpMod (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA * BnRes) % BnM == 1.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 CryptoServiceBigNumInverseMod (
   IN CONST VOID  *BnA,
@@ -4766,7 +4767,7 @@ CryptoServiceBigNumInverseMod (
   OUT VOID       *BnRes
   )
 {
-  return CALL_BASECRYPTLIB (Bn.Services.InverseMod, BigNumInverseMod, (BnA, BnM, BnRes), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Bn.Services.InverseMod, BigNumInverseMod, (BnA, BnM, BnRes), FALSE);
 }
 
 /**
@@ -4775,22 +4776,21 @@ CryptoServiceBigNumInverseMod (
   by calling to BigNumInit() or BigNumFromBin() functions.
 
   @param[in]   BnA     Big number.
-  @param[in]   BnM     Big number (modulo).
+  @param[in]   BnB     Big number.
   @param[out]  BnRes   The result, such that BnA / BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 CryptoServiceBigNumDiv (
   IN CONST VOID  *BnA,
-  IN CONST VOID  *BnM,
+  IN CONST VOID  *BnB,
   OUT VOID       *BnRes
   )
 {
-  return CALL_BASECRYPTLIB (Bn.Services.Div, BigNumDiv, (BnA, BnM, BnRes), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Bn.Services.Div, BigNumDiv, (BnA, BnB, BnRes), FALSE);
 }
 
 /**
@@ -4803,11 +4803,10 @@ CryptoServiceBigNumDiv (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA * BnB) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 CryptoServiceBigNumMulMod (
   IN CONST VOID  *BnA,
@@ -4816,7 +4815,7 @@ CryptoServiceBigNumMulMod (
   OUT VOID       *BnRes
   )
 {
-  return CALL_BASECRYPTLIB (Bn.Services.MulMod, BigNumMulMod, (BnA, BnB, BnM, BnRes), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Bn.Services.MulMod, BigNumMulMod, (BnA, BnB, BnM, BnRes), FALSE);
 }
 
 /**
@@ -4947,21 +4946,21 @@ CryptoServiceBigNumValueOne (
   by calling to BigNumInit() or BigNumFromBin() functions.
 
   @param[in]   Bn      Big number.
-  @param[in]   n       Number of bits to shift.
+  @param[in]   N       Number of bits to shift.
   @param[out]  BnRes   The result.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 CryptoServiceBigNumRShift (
   IN CONST VOID  *Bn,
-  IN UINTN       n,
+  IN UINTN       N,
   OUT VOID       *BnRes
   )
 {
-  return CALL_BASECRYPTLIB (Bn.Services.RShift, BigNumRShift, (Bn, n, BnRes), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Bn.Services.RShift, BigNumRShift, (Bn, N, BnRes), FALSE);
 }
 
 /**
@@ -4973,11 +4972,11 @@ CryptoServiceBigNumRShift (
 **/
 VOID
 EFIAPI
-CryptoServiceBigNumConsttime (
+CryptoServiceBigNumConstTime (
   IN VOID  *Bn
   )
 {
-  CALL_VOID_BASECRYPTLIB (Bn.Services.Consttime, BigNumConsttime, (Bn));
+  CALL_VOID_BASECRYPTLIB (Bn.Services.ConstTime, BigNumConstTime, (Bn));
 }
 
 /**
@@ -4989,11 +4988,10 @@ CryptoServiceBigNumConsttime (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA ^ 2) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 CryptoServiceBigNumSqrMod (
   IN CONST VOID  *BnA,
@@ -5001,7 +4999,7 @@ CryptoServiceBigNumSqrMod (
   OUT VOID       *BnRes
   )
 {
-  return CALL_BASECRYPTLIB (Bn.Services.SqrMod, BigNumSqrMod, (BnA, BnM, BnRes), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Bn.Services.SqrMod, BigNumSqrMod, (BnA, BnM, BnRes), FALSE);
 }
 
 /**
@@ -5040,17 +5038,17 @@ CryptoServiceBigNumContextFree (
   @param[in]   Bn     Big number to set.
   @param[in]   Val    Value to set.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 CryptoServiceBigNumSetUint (
   IN VOID   *Bn,
   IN UINTN  Val
   )
 {
-  return CALL_BASECRYPTLIB (Bn.Services.SetUint, BigNumSetUint, (Bn, Val), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Bn.Services.SetUint, BigNumSetUint, (Bn, Val), FALSE);
 }
 
 /**
@@ -5061,11 +5059,10 @@ CryptoServiceBigNumSetUint (
   @param[in]   BnM       Big number (modulo).
   @param[out]  BnRes     The result, such that (BnA + BnB) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 CryptoServiceBigNumAddMod (
   IN CONST VOID  *BnA,
@@ -5074,7 +5071,7 @@ CryptoServiceBigNumAddMod (
   OUT VOID       *BnRes
   )
 {
-  return CALL_BASECRYPTLIB (Bn.Services.AddMod, BigNumAddMod, (BnA, BnB, BnM, BnRes), EFI_UNSUPPORTED);
+  return CALL_BASECRYPTLIB (Bn.Services.AddMod, BigNumAddMod, (BnA, BnB, BnM, BnRes), FALSE);
 }
 
 const EDKII_CRYPTO_PROTOCOL  mEdkiiCrypto = {
@@ -5303,7 +5300,7 @@ const EDKII_CRYPTO_PROTOCOL  mEdkiiCrypto = {
   CryptoServiceBigNumCopy,
   CryptoServiceBigNumValueOne,
   CryptoServiceBigNumRShift,
-  CryptoServiceBigNumConsttime,
+  CryptoServiceBigNumConstTime,
   CryptoServiceBigNumSqrMod,
   CryptoServiceBigNumNewContext,
   CryptoServiceBigNumContextFree,

@@ -3552,11 +3552,11 @@ VOID
   @param[in]   BnB     Big number.
   @param[out]  BnRes    The result of BnA + BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
 typedef
-EFI_STATUS
+BOOLEAN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_ADD)(
   IN CONST VOID *BnA,
   IN CONST VOID *BnB,
@@ -3570,11 +3570,11 @@ EFI_STATUS
   @param[in]   BnB     Big number.
   @param[out]  BnRes    The result of BnA - BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
 typedef
-EFI_STATUS
+BOOLEAN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_SUB)(
   IN CONST VOID *BnA,
   IN CONST VOID *BnB,
@@ -3588,12 +3588,11 @@ EFI_STATUS
   @param[in]   BnB     Big number.
   @param[out]  BnRes    The result of BnA % BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
 typedef
-EFI_STATUS
+BOOLEAN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_MOD)(
   IN CONST VOID *BnA,
   IN CONST VOID *BnB,
@@ -3608,12 +3607,11 @@ EFI_STATUS
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes    The result of BnA ^ BnP % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
 typedef
-EFI_STATUS
+BOOLEAN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_EXP_MOD)(
   IN CONST VOID *BnA,
   IN CONST VOID *BnP,
@@ -3628,12 +3626,11 @@ EFI_STATUS
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA * BnRes) % BnM == 1.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
 typedef
-EFI_STATUS
+BOOLEAN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_INVERSE_MOD)(
   IN CONST VOID *BnA,
   IN CONST VOID *BnM,
@@ -3644,15 +3641,14 @@ EFI_STATUS
   Divide two Big Numbers.
 
   @param[in]   BnA     Big number.
-  @param[in]   BnM     Big number (modulo).
+  @param[in]   BnB     Big number.
   @param[out]  BnRes   The result, such that BnA / BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
 typedef
-EFI_STATUS
+BOOLEAN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_DIV)(
   IN CONST VOID *BnA,
   IN CONST VOID *BnB,
@@ -3667,12 +3663,11 @@ EFI_STATUS
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA * BnB) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
 typedef
-EFI_STATUS
+BOOLEAN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_MUL_MOD)(
   IN CONST VOID *BnA,
   IN CONST VOID *BnB,
@@ -3705,7 +3700,6 @@ INTN
   @retval Number of bits.
 **/
 typedef
-
 UINTN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_BITS)(
   IN CONST VOID *Bn
@@ -3784,21 +3778,21 @@ CONST VOID *
 
 /**
   Shift right Big Number.
+  Please note, all "out" Big number arguments should be properly initialized
+  by calling to BigNumInit() or BigNumFromBin() functions.
 
-  @param[in]   BnA     Big number.
-  @param[in]   BnB     Big number.
-  @param[in]   BnM     Big number (modulo).
-  @param[out]  BnRes   The result, such that (BnA * BnB) % BnM.
+  @param[in]   Bn      Big number.
+  @param[in]   N       Number of bits to shift.
+  @param[out]  BnRes   The result.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
 typedef
-EFI_STATUS
+BOOLEAN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_R_SHIFT)(
   IN CONST VOID *Bn,
-  IN UINTN n,
+  IN UINTN N,
   OUT VOID *BnRes
   );
 
@@ -3811,7 +3805,7 @@ EFI_STATUS
 **/
 typedef
 VOID
-(EFIAPI *EDKII_CRYPTO_BIGNUM_CONSTTIME)(
+(EFIAPI *EDKII_CRYPTO_BIGNUM_CONST_TIME)(
   IN VOID *Bn
   );
 
@@ -3822,12 +3816,11 @@ VOID
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA ^ 2) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
 typedef
-EFI_STATUS
+BOOLEAN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_SQR_MOD)(
   IN CONST VOID *BnA,
   IN CONST VOID *BnM,
@@ -3863,9 +3856,12 @@ VOID
 
   @param[in]   Bn     Big number to set.
   @param[in]   Val    Value to set.
+
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
 typedef
-EFI_STATUS
+BOOLEAN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_SET_UINT)(
   IN VOID *Bn,
   IN UINTN Val
@@ -3879,12 +3875,11 @@ EFI_STATUS
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA + BnB) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
 typedef
-EFI_STATUS
+BOOLEAN
 (EFIAPI *EDKII_CRYPTO_BIGNUM_ADD_MOD)(
   IN CONST VOID *BnA,
   IN CONST VOID *BnB,
@@ -4101,7 +4096,7 @@ struct _EDKII_CRYPTO_PROTOCOL {
   EDKII_CRYPTO_BIGNUM_COPY                           BigNumCopy;
   EDKII_CRYPTO_BIGNUM_VALUE_ONE                      BigNumValueOne;
   EDKII_CRYPTO_BIGNUM_R_SHIFT                        BigNumRShift;
-  EDKII_CRYPTO_BIGNUM_CONSTTIME                      BigNumConsttime;
+  EDKII_CRYPTO_BIGNUM_CONST_TIME                     BigNumConstTime;
   EDKII_CRYPTO_BIGNUM_SQR_MOD                        BigNumSqrMod;
   EDKII_CRYPTO_BIGNUM_NEW_CONTEXT                    BigNumNewContext;
   EDKII_CRYPTO_BIGNUM_CONTEXT_FREE                   BigNumContextFree;

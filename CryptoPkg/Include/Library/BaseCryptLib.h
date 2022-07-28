@@ -2500,10 +2500,10 @@ BigNumFree (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA + BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumAdd (
   IN CONST VOID  *BnA,
@@ -2520,10 +2520,10 @@ BigNumAdd (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA - BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumSub (
   IN CONST VOID  *BnA,
@@ -2540,11 +2540,10 @@ BigNumSub (
   @param[in]   BnB     Big number.
   @param[out]  BnRes   The result of BnA % BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumMod (
   IN CONST VOID  *BnA,
@@ -2562,11 +2561,10 @@ BigNumMod (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result of (BnA ^ BnP) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumExpMod (
   IN CONST VOID  *BnA,
@@ -2584,11 +2582,10 @@ BigNumExpMod (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA * BnRes) % BnM == 1.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumInverseMod (
   IN CONST VOID  *BnA,
@@ -2602,14 +2599,13 @@ BigNumInverseMod (
   by calling to BigNumInit() or BigNumFromBin() functions.
 
   @param[in]   BnA     Big number.
-  @param[in]   BnM     Big number (modulo).
+  @param[in]   BnB     Big number.
   @param[out]  BnRes   The result, such that BnA / BnB.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumDiv (
   IN CONST VOID  *BnA,
@@ -2627,11 +2623,10 @@ BigNumDiv (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA * BnB) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumMulMod (
   IN CONST VOID  *BnA,
@@ -2748,17 +2743,17 @@ BigNumValueOne (
   by calling to BigNumInit() or BigNumFromBin() functions.
 
   @param[in]   Bn      Big number.
-  @param[in]   n       Number of bits to shift.
+  @param[in]   N       Number of bits to shift.
   @param[out]  BnRes   The result.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumRShift (
   IN CONST VOID  *Bn,
-  IN UINTN       n,
+  IN UINTN       N,
   OUT VOID       *BnRes
   );
 
@@ -2771,7 +2766,7 @@ BigNumRShift (
 **/
 VOID
 EFIAPI
-BigNumConsttime (
+BigNumConstTime (
   IN VOID  *Bn
   );
 
@@ -2784,11 +2779,10 @@ BigNumConsttime (
   @param[in]   BnM     Big number (modulo).
   @param[out]  BnRes   The result, such that (BnA ^ 2) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumSqrMod (
   IN CONST VOID  *BnA,
@@ -2826,10 +2820,10 @@ BigNumContextFree (
   @param[in]   Bn     Big number to set.
   @param[in]   Val    Value to set.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumSetUint (
   IN VOID   *Bn,
@@ -2844,11 +2838,10 @@ BigNumSetUint (
   @param[in]   BnM       Big number (modulo).
   @param[out]  BnRes     The result, such that (BnA + BnB) % BnM.
 
-  @retval EFI_SUCCESS          On success.
-  @retval EFI_OUT_OF_RESOURCES In case of internal allocation failures.
-  @retval EFI_PROTOCOL_ERROR   Otherwise.
+  @retval TRUE          On success.
+  @retval FALSE         Otherwise.
 **/
-EFI_STATUS
+BOOLEAN
 EFIAPI
 BigNumAddMod (
   IN CONST VOID  *BnA,

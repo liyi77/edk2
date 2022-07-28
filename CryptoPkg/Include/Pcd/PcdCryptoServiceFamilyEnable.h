@@ -322,7 +322,7 @@ typedef struct {
       UINT8    Copy        : 1;
       UINT8    ValueOne    : 1;
       UINT8    RShift      : 1;
-      UINT8    Consttime   : 1;
+      UINT8    ConstTime   : 1;
       UINT8    SqrMod      : 1;
       UINT8    NewContext  : 1;
       UINT8    ContextFree : 1;
