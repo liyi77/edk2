@@ -25,6 +25,7 @@ SUITE_DESC  mSuiteDesc[] = {
   { "DH verify tests",             "CryptoPkg.BaseCryptLib", NULL, NULL, &mDhTestNum,             mDhTest             },
   { "PRNG verify tests",           "CryptoPkg.BaseCryptLib", NULL, NULL, &mPrngTestNum,           mPrngTest           },
   { "OAEP encrypt verify tests",   "CryptoPkg.BaseCryptLib", NULL, NULL, &mOaepTestNum,           mOaepTest           },
+  { "EC verify tests",             "CryptoPkg.BaseCryptLib", NULL, NULL, &mEcTestNum,             mEcTest             },
 };
 
 EFI_STATUS
