@@ -94,7 +94,15 @@ BIO_snprintf (
   ...
   )
 {
-  return 0;
+  va_list args;
+  int ret;
+
+  va_start(args, format);
+
+  ret = (int)AsciiVSPrint(buf, n, format, args);
+
+  va_end(args);
+  return ret;
 }
 
 uid_t

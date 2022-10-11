@@ -494,9 +494,15 @@ BIO_snprintf (
   ...
   )
 {
-  // Because the function does not actually print anything to buf, it returns -1 as error.
-  // Otherwise, the consumer may think that the buf is valid and parse the buffer.
-  return -1;
+  va_list args;
+  int ret;
+
+  va_start(args, format);
+
+  ret = (int)AsciiVSPrint(buf, n, format, args);
+
+  va_end(args);
+  return ret;
 }
 
 #ifdef __GNUC__
