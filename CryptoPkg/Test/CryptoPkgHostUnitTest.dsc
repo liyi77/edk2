@@ -29,6 +29,9 @@
   SynchronizationLib|MdePkg/Library/BaseSynchronizationLib/BaseSynchronizationLib.inf
   TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
 
+  SafeIntLib|MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf
+  TlsLib|CryptoPkg/Library/TlsLib/TlsLib.inf
+
 [LibraryClasses.AARCH64, LibraryClasses.ARM]
   RngLib|MdePkg/Library/BaseRngLibNull/BaseRngLibNull.inf
 
@@ -40,7 +43,7 @@
   # Build HOST_APPLICATION that tests the SampleUnitTest
   #
   CryptoPkg/Test/UnitTest/Library/BaseCryptLib/TestBaseCryptLibHost.inf
-
+  CryptoPkg/Test/UnitTest/Library/TlsLib/TestTlsLibHost.inf
 [BuildOptions]
   *_*_*_CC_FLAGS       = -D DISABLE_NEW_DEPRECATED_INTERFACES
   MSFT:*_*_*_CC_FLAGS  = /D ENABLE_MD5_DEPRECATED_INTERFACES

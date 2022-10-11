@@ -1,0 +1,42 @@
+## @file
+# Host-based UnitTest for TlsLib
+#
+# Copyright (c) Microsoft Corporation.<BR>
+# Copyright (c) 2022, Intel Corporation. All rights reserved.<BR>
+# SPDX-License-Identifier: BSD-2-Clause-Patent
+##
+
+[Defines]
+  INF_VERSION    = 0x00010005
+  BASE_NAME      = TlsLibUnitTestHost
+  FILE_GUID      = 0cb84598-824b-4833-b705-bdefdcbba1d5
+  MODULE_TYPE    = HOST_APPLICATION
+  VERSION_STRING = 1.0
+
+#
+# The following information is for reference only and not required by the build tools.
+#
+#  VALID_ARCHITECTURES           = IA32 X64
+#
+
+[Sources]
+  UnitTestMain.c
+  TlsLibUnitTests.c
+  TestTlsLib.h
+  TlsTestCert.h
+  TlsTestCert.c
+
+  HandshakeTests.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  CryptoPkg/CryptoPkg.dec
+
+[LibraryClasses]
+  BaseLib
+  DebugLib
+  BaseCryptLib
+  TlsLib
+  UnitTestLib
+  MmServicesTableLib
+  SynchronizationLib
