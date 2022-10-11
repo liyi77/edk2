@@ -3217,11 +3217,11 @@ TlsCtxNew (
 **/
 VOID
 EFIAPI
-TlsFree (
+TlsConnFree (
   IN     VOID  *Tls
   )
 {
-  CALL_VOID_CRYPTO_SERVICE (TlsFree, (Tls));
+  CALL_VOID_CRYPTO_SERVICE (TlsConnFree, (Tls));
 }
 
 /**

@@ -248,8 +248,8 @@ TlsSetConnectionEnd (
     // Set TLS to work in Server mode.
     // It is unsupported for UEFI version currently.
     //
-    // SSL_set_accept_state (TlsConn->Ssl);
-    return EFI_UNSUPPORTED;
+    SSL_set_accept_state (TlsConn->Ssl);
+    // return EFI_UNSUPPORTED;
   }
 
   return EFI_SUCCESS;

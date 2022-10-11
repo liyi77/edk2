@@ -27,7 +27,8 @@
   TlsInit.c
   TlsConfig.c
   TlsProcess.c
-
+  SysCall/UnitTestHostCrtWrapper.c
+  SysCall/inet_pton.c
 [Packages]
   MdePkg/MdePkg.dec
   CryptoPkg/CryptoPkg.dec
@@ -36,7 +37,6 @@
   BaseCryptLib
   BaseMemoryLib
   DebugLib
-  IntrinsicLib
   MemoryAllocationLib
   OpensslLib
   SafeIntLib

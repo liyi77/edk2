@@ -3981,11 +3981,11 @@ CryptoServiceTlsCtxNew (
 **/
 VOID
 EFIAPI
-CryptoServiceTlsFree (
+CryptoServiceTlsConnFree (
   IN     VOID  *Tls
   )
 {
-  CALL_VOID_BASECRYPTLIB (Tls.Services.Free, TlsFree, (Tls));
+  CALL_VOID_BASECRYPTLIB (Tls.Services.Free, TlsConnFree, (Tls));
 }
 
 /**
@@ -6302,7 +6302,7 @@ const EDKII_CRYPTO_PROTOCOL  mEdkiiCrypto = {
   CryptoServiceTlsInitialize,
   CryptoServiceTlsCtxFree,
   CryptoServiceTlsCtxNew,
-  CryptoServiceTlsFree,
+  CryptoServiceTlsConnFree,
   CryptoServiceTlsNew,
   CryptoServiceTlsInHandshake,
   CryptoServiceTlsDoHandshake,

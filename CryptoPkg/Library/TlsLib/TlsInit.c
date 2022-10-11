@@ -90,7 +90,7 @@ TlsCtxNew (
 
   ProtoVersion = (MajorVer << 8) | MinorVer;
 
-  TlsCtx = SSL_CTX_new (SSLv23_client_method ());
+  TlsCtx = SSL_CTX_new (SSLv23_method ());
   if (TlsCtx == NULL) {
     return NULL;
   }
@@ -120,7 +120,7 @@ TlsCtxNew (
 **/
 VOID
 EFIAPI
-TlsFree (
+TlsConnFree (
   IN     VOID  *Tls
   )
 {
@@ -181,7 +181,7 @@ TlsNew (
   //
   TlsConn->Ssl = SSL_new ((SSL_CTX *)TlsCtx);
   if (TlsConn->Ssl == NULL) {
-    TlsFree ((VOID *)TlsConn);
+    TlsConnFree ((VOID *)TlsConn);
     return NULL;
   }
 
@@ -202,7 +202,7 @@ TlsNew (
   //
   TlsConn->InBio = BIO_new (BIO_s_mem ());
   if (TlsConn->InBio == NULL) {
-    TlsFree ((VOID *)TlsConn);
+    TlsConnFree ((VOID *)TlsConn);
     return NULL;
   }
 
@@ -219,7 +219,7 @@ TlsNew (
   //
   TlsConn->OutBio = BIO_new (BIO_s_mem ());
   if (TlsConn->OutBio == NULL) {
-    TlsFree ((VOID *)TlsConn);
+    TlsConnFree ((VOID *)TlsConn);
     return NULL;
   }
 
@@ -244,7 +244,7 @@ TlsNew (
   if (X509Store == NULL) {
     X509Store = X509_STORE_new ();
     if (X509Store == NULL) {
-      TlsFree ((VOID *)TlsConn);
+      TlsConnFree ((VOID *)TlsConn);
       return NULL;
     }
 

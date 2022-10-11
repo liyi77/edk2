@@ -4969,7 +4969,7 @@ struct _EDKII_CRYPTO_PROTOCOL {
   EDKII_CRYPTO_TLS_INITIALIZE                         TlsInitialize;
   EDKII_CRYPTO_TLS_CTX_FREE                           TlsCtxFree;
   EDKII_CRYPTO_TLS_CTX_NEW                            TlsCtxNew;
-  EDKII_CRYPTO_TLS_FREE                               TlsFree;
+  EDKII_CRYPTO_TLS_FREE                               TlsConnFree;
   EDKII_CRYPTO_TLS_NEW                                TlsNew;
   EDKII_CRYPTO_TLS_IN_HANDSHAKE                       TlsInHandshake;
   EDKII_CRYPTO_TLS_DO_HANDSHAKE                       TlsDoHandshake;

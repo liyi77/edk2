@@ -67,7 +67,7 @@ TlsCtxNew (
 **/
 VOID
 EFIAPI
-TlsFree (
+TlsConnFree (
   IN     VOID  *Tls
   );
 
