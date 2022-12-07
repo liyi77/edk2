@@ -7,7 +7,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 **/
 
 #include "InternalCryptLib.h"
-#include <openssl/aes.h>
+#include <openssl/evp.h>
 
 /**
   Retrieves the size, in bytes, of the context buffer required for AES operations.
@@ -25,7 +25,7 @@ AesGetContextSize (
   // AES uses different key contexts for encryption and decryption, so here memory
   // for 2 copies of AES_KEY is allocated.
   //
-  return (UINTN)(2 * sizeof (AES_KEY));
+  return (UINTN)(4 + 256);
 }
 
 /**
@@ -56,8 +56,6 @@ AesInit (
   IN   UINTN        KeyLength
   )
 {
-  AES_KEY  *AesKey;
-
   //
   // Check input parameters.
   //
@@ -68,14 +66,10 @@ AesInit (
   //
   // Initialize AES encryption & decryption key schedule.
   //
-  AesKey = (AES_KEY *)AesContext;
-  if (AES_set_encrypt_key (Key, (UINT32)KeyLength, AesKey) != 0) {
-    return FALSE;
-  }
 
-  if (AES_set_decrypt_key (Key, (UINT32)KeyLength, AesKey + 1) != 0) {
-    return FALSE;
-  }
+  *(UINT8 *)AesContext = (UINT8)KeyLength;
+  CopyMem ((UINT8 *)AesContext, (UINT8 *)&KeyLength, 4);
+  CopyMem ((UINT8 *)AesContext + 4, Key, KeyLength);
 
   return TRUE;
 }
@@ -117,29 +111,61 @@ AesCbcEncrypt (
   OUT  UINT8        *Output
   )
 {
-  AES_KEY  *AesKey;
-  UINT8    IvecBuffer[AES_BLOCK_SIZE];
+  EVP_CIPHER_CTX    *Ctx;
+  CONST EVP_CIPHER  *Cipher;
+  UINTN             TempOutSize;
+  BOOLEAN           RetValue;
+  UINT8             *Key;
+  UINTN             KeySize;
 
-  //
-  // Check input parameters.
-  //
-  if ((AesContext == NULL) || (Input == NULL) || ((InputSize % AES_BLOCK_SIZE) != 0)) {
+  if (InputSize > INT_MAX) {
     return FALSE;
   }
 
-  if ((Ivec == NULL) || (Output == NULL) || (InputSize > INT_MAX)) {
+  KeySize = *(UINT32 *)AesContext;
+  switch (KeySize) {
+    case 16:
+      Cipher = EVP_aes_128_cbc ();
+      break;
+    case 24:
+      Cipher = EVP_aes_192_cbc ();
+      break;
+    case 32:
+      Cipher = EVP_aes_256_cbc ();
+      break;
+    default:
+      return FALSE;
+  }
+
+  Key = (UINT8 *)AesContext + 4;
+  Ctx = EVP_CIPHER_CTX_new ();
+  if (Ctx == NULL) {
     return FALSE;
   }
 
-  AesKey = (AES_KEY *)AesContext;
-  CopyMem (IvecBuffer, Ivec, AES_BLOCK_SIZE);
+  RetValue = (BOOLEAN)EVP_EncryptInit_ex (Ctx, Cipher, NULL, NULL, NULL);
+  if (!RetValue) {
+    goto Done;
+  }
 
-  //
-  // Perform AES data encryption with CBC mode
-  //
-  AES_cbc_encrypt (Input, Output, (UINT32)InputSize, AesKey, IvecBuffer, AES_ENCRYPT);
+  RetValue = (BOOLEAN)EVP_EncryptInit_ex (Ctx, NULL, NULL, Key, Ivec);
+  if (!RetValue) {
+    goto Done;
+  }
 
-  return TRUE;
+  RetValue = (BOOLEAN)EVP_EncryptUpdate (Ctx, Output, (INT32 *)&TempOutSize, Input, (INT32)InputSize);
+  if (!RetValue) {
+    goto Done;
+  }
+
+  RetValue = (BOOLEAN)EVP_EncryptFinal_ex (Ctx, Output, (INT32 *)&TempOutSize);
+  if (!RetValue) {
+    goto Done;
+  }
+
+Done:
+  EVP_CIPHER_CTX_free (Ctx);
+  return RetValue;
 }
 
 /**
@@ -179,27 +205,59 @@ AesCbcDecrypt (
   OUT  UINT8        *Output
   )
 {
-  AES_KEY  *AesKey;
-  UINT8    IvecBuffer[AES_BLOCK_SIZE];
+  EVP_CIPHER_CTX    *Ctx;
+  CONST EVP_CIPHER  *Cipher;
+  UINTN             TempOutSize;
+  BOOLEAN           RetValue;
+  UINT8             *Key;
+  UINTN             KeySize;
 
-  //
-  // Check input parameters.
-  //
-  if ((AesContext == NULL) || (Input == NULL) || ((InputSize % AES_BLOCK_SIZE) != 0)) {
+  if (InputSize > INT_MAX) {
     return FALSE;
   }
 
-  if ((Ivec == NULL) || (Output == NULL) || (InputSize > INT_MAX)) {
+  KeySize = *(UINT32 *)AesContext;
+  switch (KeySize) {
+    case 16:
+      Cipher = EVP_aes_128_cbc ();
+      break;
+    case 24:
+      Cipher = EVP_aes_192_cbc ();
+      break;
+    case 32:
+      Cipher = EVP_aes_256_cbc ();
+      break;
+    default:
+      return FALSE;
+  }
+
+  Key = (UINT8 *)AesContext + 4;
+  Ctx = EVP_CIPHER_CTX_new ();
+  if (Ctx == NULL) {
     return FALSE;
   }
 
-  AesKey = (AES_KEY *)AesContext;
-  CopyMem (IvecBuffer, Ivec, AES_BLOCK_SIZE);
+  RetValue = (BOOLEAN)EVP_DecryptInit_ex (Ctx, Cipher, NULL, NULL, NULL);
+  if (!RetValue) {
+    goto Done;
+  }
 
-  //
-  // Perform AES data decryption with CBC mode
-  //
-  AES_cbc_encrypt (Input, Output, (UINT32)InputSize, AesKey + 1, IvecBuffer, AES_DECRYPT);
+  RetValue = (BOOLEAN)EVP_DecryptInit_ex (Ctx, NULL, NULL, Key, Ivec);
+  if (!RetValue) {
+    goto Done;
+  }
 
-  return TRUE;
+  RetValue = (BOOLEAN)EVP_DecryptUpdate (Ctx, Output, (INT32 *)&TempOutSize, Input, (INT32)InputSize);
+  if (!RetValue) {
+    goto Done;
+  }
+
+  RetValue = (BOOLEAN)EVP_DecryptFinal_ex (Ctx, Output, (INT32 *)&TempOutSize);
+  if (!RetValue) {
+    goto Done;
+  }
+
+Done:
+  EVP_CIPHER_CTX_free (Ctx);
+  return RetValue;
 }
