@@ -911,15 +911,14 @@ EcGetPublicKeyFromX509 (
   //
   Pkey = X509_get_pubkey (X509Cert);
   if ((Pkey == NULL) || (EVP_PKEY_id (Pkey) != EVP_PKEY_EC)) {
+    if (Pkey != NULL) {
+        EVP_PKEY_free(Pkey);
+    }
     goto _Exit;
   }
 
-  //
-  // Duplicate EC Context from the retrieved EVP_PKEY.
-  //
-  if ((*EcContext = EC_KEY_dup (EVP_PKEY_get0_EC_KEY (Pkey))) != NULL) {
-    Status = TRUE;
-  }
+  Status = TRUE;
+  *EcContext = (VOID *) Pkey;
 
 _Exit:
   //
@@ -927,10 +926,6 @@ _Exit:
   //
   if (X509Cert != NULL) {
     X509_free (X509Cert);
-  }
-
-  if (Pkey != NULL) {
-    EVP_PKEY_free (Pkey);
   }
 
   return Status;

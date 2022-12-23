@@ -196,7 +196,7 @@ EcGetPrivateKeyFromPem (
   //
   // Retrieve EC Private Key from encrypted PEM data.
   //
-  *EcContext = PEM_read_bio_ECPrivateKey (PemBio, NULL, (pem_password_cb *)&PasswordCallback, (void *)Password);
+  *EcContext = PEM_read_bio_PrivateKey (PemBio, NULL, (pem_password_cb *)&PasswordCallback, (void *)Password);
   if (*EcContext != NULL) {
     Status = TRUE;
   }
