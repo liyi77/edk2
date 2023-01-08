@@ -386,8 +386,9 @@
   #
   # Build verification of IA32/X64 specific libraries
   #
-  CryptoPkg/Library/OpensslLib/OpensslLibAccel.inf
-  CryptoPkg/Library/OpensslLib/OpensslLibFullAccel.inf
+  # CryptoPkg/Library/OpensslLib/OpensslLibAccel.inf
+  # CryptoPkg/Library/OpensslLib/OpensslLibFullAccel.inf
+  CryptoPkg/Library/OpensslLib/OpensslLibCrypto.inf
 !endif
 
 #

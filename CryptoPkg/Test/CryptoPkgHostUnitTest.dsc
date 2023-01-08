@@ -36,12 +36,12 @@
     <LibraryClasses>
       OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLibFull.inf
   }
-  CryptoPkg/Test/UnitTest/Library/BaseCryptLib/TestBaseCryptLibHost.inf {
-    <Defines>
-      FILE_GUID = 3604CCB8-138C-488F-8045-18704F73E734
-    <LibraryClasses>
-      OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLibFullAccel.inf
-  }
+  # CryptoPkg/Test/UnitTest/Library/BaseCryptLib/TestBaseCryptLibHost.inf {
+  #   <Defines>
+  #     FILE_GUID = 3604CCB8-138C-488F-8045-18704F73E734
+  #   <LibraryClasses>
+  #     OpensslLib|CryptoPkg/Library/OpensslLib/OpensslLibFullAccel.inf
+  # }
 
 [BuildOptions]
   *_*_*_CC_FLAGS = -D DISABLE_NEW_DEPRECATED_INTERFACES

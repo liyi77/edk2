@@ -288,6 +288,16 @@
   $(OPENSSL_PATH)/crypto/pem/pem_info.c
   $(OPENSSL_PATH)/crypto/pem/pem_err.c
   $(OPENSSL_PATH)/crypto/pem/pem_all.c
+  $(OPENSSL_PATH)/crypto/ocsp/v3_ocsp.c
+  $(OPENSSL_PATH)/crypto/ocsp/ocsp_vfy.c
+  $(OPENSSL_PATH)/crypto/ocsp/ocsp_srv.c
+  $(OPENSSL_PATH)/crypto/ocsp/ocsp_prn.c
+  $(OPENSSL_PATH)/crypto/ocsp/ocsp_lib.c
+  $(OPENSSL_PATH)/crypto/ocsp/ocsp_http.c
+  $(OPENSSL_PATH)/crypto/ocsp/ocsp_ext.c
+  $(OPENSSL_PATH)/crypto/ocsp/ocsp_err.c
+  $(OPENSSL_PATH)/crypto/ocsp/ocsp_cl.c
+  $(OPENSSL_PATH)/crypto/ocsp/ocsp_asn.c
   $(OPENSSL_PATH)/crypto/objects/obj_xref.c
   $(OPENSSL_PATH)/crypto/objects/obj_lib.c
   $(OPENSSL_PATH)/crypto/objects/obj_err.c
@@ -475,6 +485,10 @@
   $(OPENSSL_PATH)/crypto/dh/dh_backend.c
   $(OPENSSL_PATH)/crypto/dh/dh_asn1.c
   $(OPENSSL_PATH)/crypto/dh/dh_ameth.c
+  $(OPENSSL_PATH)/crypto/crmf/crmf_pbm.c
+  $(OPENSSL_PATH)/crypto/crmf/crmf_lib.c
+  $(OPENSSL_PATH)/crypto/crmf/crmf_err.c
+  $(OPENSSL_PATH)/crypto/crmf/crmf_asn.c
   $(OPENSSL_PATH)/crypto/conf/conf_ssl.c
   $(OPENSSL_PATH)/crypto/conf/conf_sap.c
   $(OPENSSL_PATH)/crypto/conf/conf_mod.c
@@ -486,6 +500,18 @@
   $(OPENSSL_PATH)/crypto/comp/comp_lib.c
   $(OPENSSL_PATH)/crypto/comp/comp_err.c
   $(OPENSSL_PATH)/crypto/comp/c_zlib.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_vfy.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_util.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_status.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_server.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_protect.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_msg.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_http.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_hdr.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_err.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_ctx.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_client.c
+  $(OPENSSL_PATH)/crypto/cmp/cmp_asn.c
   $(OPENSSL_PATH)/crypto/buffer/buffer.c
   $(OPENSSL_PATH)/crypto/buffer/buf_err.c
   $(OPENSSL_PATH)/crypto/bn/bn_x931p.c
@@ -743,9 +769,11 @@
   $(OPENSSL_PATH)/crypto/bn/bn_local.h
   $(OPENSSL_PATH)/crypto/bn/bn_prime.h
   $(OPENSSL_PATH)/crypto/bn/rsaz_exp.h
+  $(OPENSSL_PATH)/crypto/cmp/cmp_local.h
   $(OPENSSL_PATH)/crypto/comp/comp_local.h
   $(OPENSSL_PATH)/crypto/conf/conf_def.h
   $(OPENSSL_PATH)/crypto/conf/conf_local.h
+  $(OPENSSL_PATH)/crypto/crmf/crmf_local.h
   $(OPENSSL_PATH)/crypto/dh/dh_local.h
   $(OPENSSL_PATH)/crypto/dso/dso_local.h
   $(OPENSSL_PATH)/crypto/encode_decode/encoder_local.h
@@ -759,6 +787,7 @@
   $(OPENSSL_PATH)/crypto/objects/obj_dat.h
   $(OPENSSL_PATH)/crypto/objects/obj_local.h
   $(OPENSSL_PATH)/crypto/objects/obj_xref.h
+  $(OPENSSL_PATH)/crypto/ocsp/ocsp_local.h
   $(OPENSSL_PATH)/crypto/pem/pem_local.h
   $(OPENSSL_PATH)/crypto/pkcs12/p12_local.h
   $(OPENSSL_PATH)/crypto/pkcs7/pk7_local.h
@@ -919,6 +948,15 @@
   rand_pool.c
 #  SslNull.c
 #  EcSm2Null.c
+  # uefiprov.c
+  $(OPENSSL_PATH)/providers/defltprov.c
+  der_digests_gen.c
+  der_ec_gen.c
+  der_ecx_gen.c
+  der_rsa_gen.c
+  der_sm2_gen.c
+  der_wrap_gen.c
+
 
 [Packages]
   MdePkg/MdePkg.dec

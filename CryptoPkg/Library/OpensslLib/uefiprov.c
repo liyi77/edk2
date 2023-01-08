@@ -23,6 +23,24 @@
 #include "internal/nelem.h"
 
 /*
+ * Many features still use low-level API in EDK2,
+ * so we do not need these provider.
+*/
+#define UEFI_NO_SHA512_X_PROV
+#define UEFI_NO_SHA3_PROV
+#define UEFI_NO_KECCAK_PROV
+//AES still use low-level API except AES-GCM
+#define UEFI_NO_AES_PROV
+#define UEFI_NO_GMAC_PROV
+#define UEFI_NO_KMAC_PROV
+#define UEFI_NO_KDF_PROV
+#define UEFI_NO_KEYEXCH_PROV
+#define UEFI_NO_RAND_PROV
+#define UEFI_NO_SM3_PROV
+#define UEFI_NO_MD5_PROV
+// #define UEFI_NO_KEM_RSA_PROV
+// #define UEFI_NO_CIPHER_RSA_PROV
+/*
  * Forward declarations to ensure that interface functions are correctly
  * defined.
  */
@@ -104,19 +122,24 @@ static const OSSL_ALGORITHM deflt_digests[] = {
     { PROV_NAMES_SHA2_256, "provider=default", ossl_sha256_functions },
     { PROV_NAMES_SHA2_384, "provider=default", ossl_sha384_functions },
     { PROV_NAMES_SHA2_512, "provider=default", ossl_sha512_functions },
+#ifdef UEFI_NO_SHA512_X_PROV
     { PROV_NAMES_SHA2_512_224, "provider=default", ossl_sha512_224_functions },
     { PROV_NAMES_SHA2_512_256, "provider=default", ossl_sha512_256_functions },
+#endif
 
     /* We agree with NIST here, so one name only */
+#ifndef UEFI_NO_SHA3_PROV
     { PROV_NAMES_SHA3_224, "provider=default", ossl_sha3_224_functions },
     { PROV_NAMES_SHA3_256, "provider=default", ossl_sha3_256_functions },
     { PROV_NAMES_SHA3_384, "provider=default", ossl_sha3_384_functions },
     { PROV_NAMES_SHA3_512, "provider=default", ossl_sha3_512_functions },
+#endif
 
     /*
      * KECCAK-KMAC-128 and KECCAK-KMAC-256 as hashes are mostly useful for
      * the KMAC-128 and KMAC-256.
      */
+#ifndef UEFI_NO_KECCAK_PROV
     { PROV_NAMES_KECCAK_KMAC_128, "provider=default",
       ossl_keccak_kmac_128_functions },
     { PROV_NAMES_KECCAK_KMAC_256, "provider=default",
@@ -125,6 +148,7 @@ static const OSSL_ALGORITHM deflt_digests[] = {
     /* Our primary name:NIST name */
     { PROV_NAMES_SHAKE_128, "provider=default", ossl_shake_128_functions },
     { PROV_NAMES_SHAKE_256, "provider=default", ossl_shake_256_functions },
+#endif
 
 #ifndef OPENSSL_NO_BLAKE2
     /*
@@ -138,14 +162,18 @@ static const OSSL_ALGORITHM deflt_digests[] = {
     { PROV_NAMES_BLAKE2B_512, "provider=default", ossl_blake2b512_functions },
 #endif /* OPENSSL_NO_BLAKE2 */
 
+#ifndef UEFI_NO_SM3_PROV
 #ifndef OPENSSL_NO_SM3
     { PROV_NAMES_SM3, "provider=default", ossl_sm3_functions },
 #endif /* OPENSSL_NO_SM3 */
+#endif
 
+#ifndef UEFI_NO_MD5_PROV
 #ifndef OPENSSL_NO_MD5
     { PROV_NAMES_MD5, "provider=default", ossl_md5_functions },
     { PROV_NAMES_MD5_SHA1, "provider=default", ossl_md5_sha1_functions },
 #endif /* OPENSSL_NO_MD5 */
+#endif
 
 #ifndef OPENSSL_NO_RMD160
     { PROV_NAMES_RIPEMD_160, "provider=default", ossl_ripemd160_functions },
@@ -160,6 +188,7 @@ static const OSSL_ALGORITHM_CAPABLE deflt_ciphers[] = {
     ALG(PROV_NAMES_AES_256_ECB, ossl_aes256ecb_functions),
     ALG(PROV_NAMES_AES_192_ECB, ossl_aes192ecb_functions),
     ALG(PROV_NAMES_AES_128_ECB, ossl_aes128ecb_functions),
+#ifndef UEFI_NO_AES_PROV
     ALG(PROV_NAMES_AES_256_CBC, ossl_aes256cbc_functions),
     ALG(PROV_NAMES_AES_192_CBC, ossl_aes192cbc_functions),
     ALG(PROV_NAMES_AES_128_CBC, ossl_aes128cbc_functions),
@@ -178,11 +207,15 @@ static const OSSL_ALGORITHM_CAPABLE deflt_ciphers[] = {
     ALG(PROV_NAMES_AES_256_CFB8, ossl_aes256cfb8_functions),
     ALG(PROV_NAMES_AES_192_CFB8, ossl_aes192cfb8_functions),
     ALG(PROV_NAMES_AES_128_CFB8, ossl_aes128cfb8_functions),
+#endif
+
     ALG(PROV_NAMES_AES_256_CTR, ossl_aes256ctr_functions),
     ALG(PROV_NAMES_AES_192_CTR, ossl_aes192ctr_functions),
     ALG(PROV_NAMES_AES_128_CTR, ossl_aes128ctr_functions),
+#ifndef UEFI_NO_AES_PROV
     ALG(PROV_NAMES_AES_256_XTS, ossl_aes256xts_functions),
     ALG(PROV_NAMES_AES_128_XTS, ossl_aes128xts_functions),
+#endif
 #ifndef OPENSSL_NO_OCB
     ALG(PROV_NAMES_AES_256_OCB, ossl_aes256ocb_functions),
     ALG(PROV_NAMES_AES_192_OCB, ossl_aes192ocb_functions),
@@ -196,6 +229,7 @@ static const OSSL_ALGORITHM_CAPABLE deflt_ciphers[] = {
     ALG(PROV_NAMES_AES_256_GCM, ossl_aes256gcm_functions),
     ALG(PROV_NAMES_AES_192_GCM, ossl_aes192gcm_functions),
     ALG(PROV_NAMES_AES_128_GCM, ossl_aes128gcm_functions),
+#ifndef UEFI_NO_AES_PROV
     ALG(PROV_NAMES_AES_256_CCM, ossl_aes256ccm_functions),
     ALG(PROV_NAMES_AES_192_CCM, ossl_aes192ccm_functions),
     ALG(PROV_NAMES_AES_128_CCM, ossl_aes128ccm_functions),
@@ -219,6 +253,7 @@ static const OSSL_ALGORITHM_CAPABLE deflt_ciphers[] = {
         ossl_cipher_capable_aes_cbc_hmac_sha256),
     ALGC(PROV_NAMES_AES_256_CBC_HMAC_SHA256, ossl_aes256cbc_hmac_sha256_functions,
          ossl_cipher_capable_aes_cbc_hmac_sha256),
+#endif
 #ifndef OPENSSL_NO_ARIA
     ALG(PROV_NAMES_ARIA_256_GCM, ossl_aria256gcm_functions),
     ALG(PROV_NAMES_ARIA_192_GCM, ossl_aria192gcm_functions),
@@ -312,10 +347,14 @@ static const OSSL_ALGORITHM deflt_macs[] = {
 #ifndef OPENSSL_NO_CMAC
     { PROV_NAMES_CMAC, "provider=default", ossl_cmac_functions },
 #endif
+#ifndef UEFI_NO_GMAC_PROV
     { PROV_NAMES_GMAC, "provider=default", ossl_gmac_functions },
+#endif
     { PROV_NAMES_HMAC, "provider=default", ossl_hmac_functions },
+#ifndef UEFI_NO_KMAC_PROV
     { PROV_NAMES_KMAC_128, "provider=default", ossl_kmac128_functions },
     { PROV_NAMES_KMAC_256, "provider=default", ossl_kmac256_functions },
+#endif
 #ifndef OPENSSL_NO_SIPHASH
     { PROV_NAMES_SIPHASH, "provider=default", ossl_siphash_functions },
 #endif
@@ -327,6 +366,7 @@ static const OSSL_ALGORITHM deflt_macs[] = {
 
 static const OSSL_ALGORITHM deflt_kdfs[] = {
     { PROV_NAMES_HKDF, "provider=default", ossl_kdf_hkdf_functions },
+#ifndef UEFI_NO_KDF_PROV
     { PROV_NAMES_TLS1_3_KDF, "provider=default",
       ossl_kdf_tls1_3_kdf_functions },
     { PROV_NAMES_SSKDF, "provider=default", ossl_kdf_sskdf_functions },
@@ -341,6 +381,7 @@ static const OSSL_ALGORITHM deflt_kdfs[] = {
     { PROV_NAMES_SCRYPT, "provider=default", ossl_kdf_scrypt_functions },
 #endif
     { PROV_NAMES_KRB5KDF, "provider=default", ossl_kdf_krb5kdf_functions },
+#endif //UEFI_NO_KDF_PROV
     { NULL, NULL, NULL }
 };
 
@@ -355,17 +396,23 @@ static const OSSL_ALGORITHM deflt_keyexch[] = {
 #endif
     { PROV_NAMES_TLS1_PRF, "provider=default", ossl_kdf_tls1_prf_keyexch_functions },
     { PROV_NAMES_HKDF, "provider=default", ossl_kdf_hkdf_keyexch_functions },
+#ifndef OPENSSL_NO_SCRYPT
     { PROV_NAMES_SCRYPT, "provider=default",
       ossl_kdf_scrypt_keyexch_functions },
+#endif
+// #endif //UEFI_NO_KEYEXCH_PROV
     { NULL, NULL, NULL }
 };
 
 static const OSSL_ALGORITHM deflt_rands[] = {
+    { PROV_NAMES_HASH_DRBG, "provider=default", ossl_drbg_hash_functions },
+// #ifndef UEFI_NO_RAND_PROV
     { PROV_NAMES_CTR_DRBG, "provider=default", ossl_drbg_ctr_functions },
     { PROV_NAMES_HASH_DRBG, "provider=default", ossl_drbg_hash_functions },
     { PROV_NAMES_HMAC_DRBG, "provider=default", ossl_drbg_ossl_hmac_functions },
     { PROV_NAMES_SEED_SRC, "provider=default", ossl_seed_src_functions },
     { PROV_NAMES_TEST_RAND, "provider=default", ossl_test_rng_functions },
+// #endif //UEFI_NO_RAND_PROV
     { NULL, NULL, NULL }
 };
 
@@ -382,9 +429,9 @@ static const OSSL_ALGORITHM deflt_signature[] = {
     { PROV_NAMES_SM2, "provider=default", ossl_sm2_signature_functions },
 # endif
 #endif
-    { PROV_NAMES_HMAC, "provider=default", ossl_mac_legacy_hmac_signature_functions },
-    { PROV_NAMES_SIPHASH, "provider=default",
-      ossl_mac_legacy_siphash_signature_functions },
+    // { PROV_NAMES_HMAC, "provider=default", ossl_mac_legacy_hmac_signature_functions },
+    // { PROV_NAMES_SIPHASH, "provider=default",
+    //   ossl_mac_legacy_siphash_signature_functions },
 #ifndef OPENSSL_NO_POLY1305
     { PROV_NAMES_POLY1305, "provider=default",
       ossl_mac_legacy_poly1305_signature_functions },
@@ -396,7 +443,9 @@ static const OSSL_ALGORITHM deflt_signature[] = {
 };
 
 static const OSSL_ALGORITHM deflt_asym_cipher[] = {
+#ifndef UEFI_NO_CIPHER_RSA_PROV
     { PROV_NAMES_RSA, "provider=default", ossl_rsa_asym_cipher_functions },
+#endif //UEFI_NO_CIPHER_RSA_PROV
 #ifndef OPENSSL_NO_SM2
     { PROV_NAMES_SM2, "provider=default", ossl_sm2_asym_cipher_functions },
 #endif
@@ -404,16 +453,18 @@ static const OSSL_ALGORITHM deflt_asym_cipher[] = {
 };
 
 static const OSSL_ALGORITHM deflt_asym_kem[] = {
+#ifndef UEFI_NO_KEM_RSA_PROV
     { PROV_NAMES_RSA, "provider=default", ossl_rsa_asym_kem_functions },
+#endif //UEFI_NO_KEM_RSA_PROV
     { NULL, NULL, NULL }
 };
 
 static const OSSL_ALGORITHM deflt_keymgmt[] = {
 #ifndef OPENSSL_NO_DH
-    { PROV_NAMES_DH, "provider=default", ossl_dh_keymgmt_functions,
-      PROV_DESCS_DH },
-    { PROV_NAMES_DHX, "provider=default", ossl_dhx_keymgmt_functions,
-      PROV_DESCS_DHX },
+    // { PROV_NAMES_DH, "provider=default", ossl_dh_keymgmt_functions,
+    //   PROV_DESCS_DH },
+    // { PROV_NAMES_DHX, "provider=default", ossl_dhx_keymgmt_functions,
+    //   PROV_DESCS_DHX },
 #endif
 #ifndef OPENSSL_NO_DSA
     { PROV_NAMES_DSA, "provider=default", ossl_dsa_keymgmt_functions,
@@ -435,16 +486,16 @@ static const OSSL_ALGORITHM deflt_keymgmt[] = {
     { PROV_NAMES_ED448, "provider=default", ossl_ed448_keymgmt_functions,
       PROV_DESCS_ED448 },
 #endif
-    { PROV_NAMES_TLS1_PRF, "provider=default", ossl_kdf_keymgmt_functions,
-      PROV_DESCS_TLS1_PRF_SIGN },
+    // { PROV_NAMES_TLS1_PRF, "provider=default", ossl_kdf_keymgmt_functions,
+    //   PROV_DESCS_TLS1_PRF_SIGN },
     { PROV_NAMES_HKDF, "provider=default", ossl_kdf_keymgmt_functions,
       PROV_DESCS_HKDF_SIGN },
-    { PROV_NAMES_SCRYPT, "provider=default", ossl_kdf_keymgmt_functions,
-      PROV_DESCS_SCRYPT_SIGN },
+    // { PROV_NAMES_SCRYPT, "provider=default", ossl_kdf_keymgmt_functions,
+    //   PROV_DESCS_SCRYPT_SIGN },
     { PROV_NAMES_HMAC, "provider=default", ossl_mac_legacy_keymgmt_functions,
       PROV_DESCS_HMAC_SIGN },
-    { PROV_NAMES_SIPHASH, "provider=default", ossl_mac_legacy_keymgmt_functions,
-      PROV_DESCS_SIPHASH_SIGN },
+    // { PROV_NAMES_SIPHASH, "provider=default", ossl_mac_legacy_keymgmt_functions,
+    //   PROV_DESCS_SIPHASH_SIGN },
 #ifndef OPENSSL_NO_POLY1305
     { PROV_NAMES_POLY1305, "provider=default", ossl_mac_legacy_keymgmt_functions,
       PROV_DESCS_POLY1305_SIGN },

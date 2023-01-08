@@ -318,7 +318,24 @@ foreach my $product ((@{$unified_info{libraries}},
                 }
                 next;
             }
-            if ($s =~ "/ec/" || $s =~ "/sm2/") {
+            #Filter out all EC related files.
+            if ($s =~ "/ec/" || $s =~ "/sm2/" ||
+                %s ~= "/evp/ec_support.c" ||
+                %s ~= "/evp/ec_ctrl.c" ||
+                %s ~= "/signature/sm2_sig.c" ||
+                %s ~= "/signature/eddsa_sig.c" ||
+                %s ~= "/signature/ecdsa_sig.c" ||
+                %s ~= "/keymgmt/ecx_kmgmt.c" ||
+                %s ~= "/keymgmt/ec_kmgmt.c" ||
+                %s ~= "/exchange/ecx_exch.c" ||
+                %s ~= "/exchange/ecdh_exch.c" ||
+                %s ~= "/encode_decode/encode_key2blob.c" ||
+                %s ~= "/asymciphers/sm2_enc.c" ||
+                %s ~= "/der/der_sm2_sig.c" ||
+                %s ~= "/der/der_sm2_key.c" ||
+                %s ~= "/der/der_ecx_key.c" ||
+                %s ~= "/der/der_ec_sig.c" ||
+                %s ~= "/der/der_ec_key.c") {
                 push @ecfilelist, '  $(OPENSSL_PATH)/' . $s . "\r\n";
                 next;
             }
@@ -541,10 +558,18 @@ for my $file (@hdrs) {
         or die "Cannot copy $file !";
 }
 
+for my $file (map { s/\.in//; $_ } glob($OPENSSL_PATH . "/providers/common/der/*.c.in")) {
+    next unless -f $file;
+    my $dest = $file;
+    $dest =~ s|.*/||;
+    print "\n--> Duplicating $file into $dest ... ";
+    system("perl -pe 's/\\n/\\r\\n/' < $file > $dest") == 0
+        or die "Cannot copy $file !";
+}
+
 print "\nProcessing Files Done!\n";
 
 # cleanup
 system("make -C $OPENSSL_PATH clean");
 
 exit(0);
-
