@@ -250,7 +250,6 @@ BEGIN {
                 "no-sock",
                 "no-srp",
                 "no-srtp",
-                "no-sse2",
                 "no-ssl",
                 "no-ssl3-method",
                 "no-ssl-trace",
