@@ -441,14 +441,14 @@
   $(OPENSSL_PATH)/crypto/err/err_blocks.c
   $(OPENSSL_PATH)/crypto/err/err_all_legacy.c
   $(OPENSSL_PATH)/crypto/err/err.c
-  $(OPENSSL_PATH)/crypto/encode_decode/encoder_pkey.c
-  $(OPENSSL_PATH)/crypto/encode_decode/encoder_meth.c
-  $(OPENSSL_PATH)/crypto/encode_decode/encoder_lib.c
-  $(OPENSSL_PATH)/crypto/encode_decode/encoder_err.c
-  $(OPENSSL_PATH)/crypto/encode_decode/decoder_pkey.c
-  $(OPENSSL_PATH)/crypto/encode_decode/decoder_meth.c
-  $(OPENSSL_PATH)/crypto/encode_decode/decoder_lib.c
-  $(OPENSSL_PATH)/crypto/encode_decode/decoder_err.c
+  # $(OPENSSL_PATH)/crypto/encode_decode/encoder_pkey.c
+  # $(OPENSSL_PATH)/crypto/encode_decode/encoder_meth.c
+  # $(OPENSSL_PATH)/crypto/encode_decode/encoder_lib.c
+  # $(OPENSSL_PATH)/crypto/encode_decode/encoder_err.c
+  # $(OPENSSL_PATH)/crypto/encode_decode/decoder_pkey.c
+  # $(OPENSSL_PATH)/crypto/encode_decode/decoder_meth.c
+  # $(OPENSSL_PATH)/crypto/encode_decode/decoder_lib.c
+  # $(OPENSSL_PATH)/crypto/encode_decode/decoder_err.c
   $(OPENSSL_PATH)/crypto/dso/dso_win32.c
   $(OPENSSL_PATH)/crypto/dso/dso_vms.c
   $(OPENSSL_PATH)/crypto/dso/dso_openssl.c
@@ -708,6 +708,8 @@
   SslNull.c
   EcSm2Null.c
   DhNull.c
+  EncoderNull.c
+  DecoderNull.c
   OpensslProv/minprov.c
   OpensslGen/der_digests_gen.c
   OpensslGen/der_rsa_gen.c
