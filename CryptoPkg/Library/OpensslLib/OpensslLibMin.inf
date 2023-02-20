@@ -711,6 +711,7 @@
   OpensslProv/minprov.c
   OpensslGen/der_digests_gen.c
   OpensslGen/der_rsa_gen.c
+  OpensslGen/der_wrap_gen.c
 
 [Packages]
   MdePkg/MdePkg.dec
