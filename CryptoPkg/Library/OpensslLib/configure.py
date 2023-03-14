@@ -233,6 +233,7 @@ def sources_filter_fn(filename):
         'baseprov.c',
         'provider_predefined.c',
         '/pem/',
+        'bio_prov.c',
     ]
     for item in exclude:
         if item in filename:
