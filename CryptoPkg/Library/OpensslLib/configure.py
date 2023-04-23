@@ -287,7 +287,7 @@ def main():
     # prepare
     os.chdir(os.path.dirname(__file__))
     openssldir = os.path.join(os.getcwd(), 'openssl')
-    opensslgendir = os.path.join(os.getcwd(), 'openssl-gen')
+    opensslgendir = os.path.join(os.getcwd(), 'OpensslGen')
 
     # asm accel configs (see UefiAsm.conf)
     for ec in [True, False]:
