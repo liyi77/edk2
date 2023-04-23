@@ -201,26 +201,6 @@ def sources_filter_fn(filename):
             return False
     return True
 
-def hash_filter_fn(filename):
-    """
-    Filter source lists.  Include source files with hash functions only.
-    """
-    include = [
-        '/sha/',
-        '/sm3/',
-        'mem_clr.c',
-    ]
-    exclude = [
-        'sha1_one.c',
-    ]
-    for item in exclude:
-        if item in filename:
-            return False
-    for item in include:
-        if item in filename:
-            return True
-    return False
-
 def libcrypto_sources(cfg, asm = None):
     """ Get source file list for libcrypto """
     files = get_sources(cfg, 'libcrypto', asm)
@@ -232,12 +212,6 @@ def libssl_sources(cfg, asm = None):
     """ Get source file list for libssl """
     files = get_sources(cfg, 'libssl', asm)
     files = list(filter(sources_filter_fn, files))
-    return files
-
-def hash_sources(cfg, asm = None):
-    """ Get source file list for hash functions """
-    files = get_sources(cfg, 'libcrypto', asm)
-    files = list(filter(hash_filter_fn, files))
     return files
 
 def update_inf(filename, sources, arch = None, defines = []):
@@ -347,9 +321,6 @@ def main():
                None, cfg['unified_info']['defines']['libcrypto'])
     update_inf('OpensslLib.inf',
                libcrypto_sources(cfg) + libssl_sources(cfg),
-               None, cfg['unified_info']['defines']['libcrypto'])
-    update_inf('OpensslLibHash.inf',
-               hash_sources(cfg),
                None, cfg['unified_info']['defines']['libcrypto'])
 
     # wrap header file
