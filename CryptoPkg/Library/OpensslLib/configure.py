@@ -219,6 +219,12 @@ def sources_filter_fn(filename):
         'randfile.c',
         '/store/',
         '/storemgmt/',
+    ''' Filter below source and replace with NULL implement '''
+        '/encode_decode/encode',
+        '/pkcs12/',
+        '/pem/',
+        'statem_srvr.c',
+        'extensions_srvr',
     ]
     for item in exclude:
         if item in filename:
