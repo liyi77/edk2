@@ -291,7 +291,7 @@ def update_inf(filename, sources, arch = None, defines = []):
 
 def main():
     # prepare
-    os.chdir(os.path.dirname(__file__))
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     openssldir = os.path.join(os.getcwd(), 'openssl')
     opensslgendir = os.path.join(os.getcwd(), 'OpensslGen')
 
@@ -333,9 +333,13 @@ def main():
     generate_all_files(openssldir, opensslgendir, None, cfg)
     openssl_run_make(openssldir, 'distclean')
 
+    defines = []
+    if 'libcrypto' in cfg['unified_info']['defines']:
+        defines = cfg['unified_info']['defines']['libcrypto']
+
     update_inf('OpensslLibFull.inf',
                libcrypto_sources(cfg) + libssl_sources(cfg),
-               None, cfg['unified_info']['defines']['libcrypto'])
+               defines)
 
     # noaccel - ec disabled
     openssl_configure(openssldir, 'UEFI', ec = False);
@@ -345,10 +349,10 @@ def main():
 
     update_inf('OpensslLibCrypto.inf',
                libcrypto_sources(cfg),
-               None, cfg['unified_info']['defines']['libcrypto'])
+               None, defines)
     update_inf('OpensslLib.inf',
                libcrypto_sources(cfg) + libssl_sources(cfg),
-               None, cfg['unified_info']['defines']['libcrypto'])
+               None, defines)
 
     # wrap header file
     confighdr = os.path.join(opensslgendir, 'include', 'openssl', 'configuration.h')
