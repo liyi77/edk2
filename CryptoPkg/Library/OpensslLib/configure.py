@@ -231,6 +231,22 @@ def sources_filter_fn(filename):
             return False
     return True
 
+def sources_minimal_filter_fn(filename):
+    """
+    Filter minimal source lists.  Drops files we don't want include or
+    need replace with our own uefi-specific version.
+    """
+    exclude = [
+        '/dh/',
+        'dh_exch',
+        'dh_kmgmt',
+        '/pem/',
+    ]
+    for item in exclude:
+        if item in filename:
+            return False
+    return True
+
 def libcrypto_sources(cfg, asm = None):
     """ Get source file list for libcrypto """
     files = get_sources(cfg, 'libcrypto', asm)
@@ -238,10 +254,12 @@ def libcrypto_sources(cfg, asm = None):
     files = list(filter(sources_filter_fn, files))
     return files
 
-def libssl_sources(cfg, asm = None):
+def libssl_sources(cfg, asm = None, min = False):
     """ Get source file list for libssl """
     files = get_sources(cfg, 'libssl', asm)
     files = list(filter(sources_filter_fn, files))
+    if min:
+        files = list(filter(sources_minimal_filter_fn, files))
     return files
 
 def update_inf(filename, sources, arch = None, defines = []):
@@ -353,7 +371,9 @@ def main():
     update_inf('OpensslLib.inf',
                libcrypto_sources(cfg) + libssl_sources(cfg),
                None, defines)
-
+    update_inf('OpensslLibMin.inf',
+               libcrypto_sources(cfg, None, True),
+               None, defines)
     # wrap header file
     confighdr = os.path.join(opensslgendir, 'include', 'openssl', 'configuration.h')
     with open(confighdr, 'w') as f:

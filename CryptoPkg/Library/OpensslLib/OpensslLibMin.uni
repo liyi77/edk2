@@ -1,8 +1,8 @@
 // /** @file
-// This module provides OpenSSL Library implementation (libcrypto only, no
-// libssl or ecc).
+//  This module provides Minimal OpenSSL Library implementation include:
+//  Hash, Hmac, Hkdf, Aes(without GCM), RsaBasic(RSA + Pkcs1Verify).
 //
-// Copyright (c) 2010 - 2018, Intel Corporation. All rights reserved.<BR>
+// Copyright (c) 2023, Intel Corporation. All rights reserved.<BR>
 //
 // SPDX-License-Identifier: BSD-2-Clause-Patent
 //
