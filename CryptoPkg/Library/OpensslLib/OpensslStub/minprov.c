@@ -163,16 +163,7 @@ static const OSSL_ALGORITHM deflt_rands[] = {
     { NULL, NULL, NULL }
 };
 
-static const OSSL_ALGORITHM deflt_signature[] = {
-    { PROV_NAMES_RSA, "provider=default", ossl_rsa_signature_functions },
-    { NULL, NULL, NULL }
-};
-
 static const OSSL_ALGORITHM deflt_keymgmt[] = {
-    { PROV_NAMES_RSA, "provider=default", ossl_rsa_keymgmt_functions,
-      PROV_DESCS_RSA },
-    { PROV_NAMES_RSA_PSS, "provider=default", ossl_rsapss_keymgmt_functions,
-      PROV_DESCS_RSA_PSS },
     { PROV_NAMES_HKDF, "provider=default", ossl_kdf_keymgmt_functions,
       PROV_DESCS_HKDF_SIGN },
     { NULL, NULL, NULL }

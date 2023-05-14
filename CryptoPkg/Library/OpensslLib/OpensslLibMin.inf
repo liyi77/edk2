@@ -42,6 +42,7 @@
   OpensslStub/EncoderNull.c
   OpensslStub/DecoderNull.c
   OpensslStub/Pkcs12Null.c
+  OpensslStub/PemNull.c
 
 [Packages]
   MdePkg/MdePkg.dec
