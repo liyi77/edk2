@@ -251,6 +251,12 @@ def sources_minimal_filter_fn(filename):
         'dh_kmgmt',
         '/pem/',
         '/encode_decode/',
+        's3_cbc.c',
+        's3_enc.c',
+        'x509_r2x.c',
+        '/digests/md5',
+        '/md5/',
+        '/evp/legacy_md5',
     ]
     for item in exclude:
         if item in filename:
