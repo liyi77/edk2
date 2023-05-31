@@ -39,6 +39,7 @@
   DebugLib
   BaseCryptLib
   TlsLib
+  IntrinsicLib
 
 [Ppis]
   gEfiPeiMemoryDiscoveredPpiGuid  ## CONSUMES
