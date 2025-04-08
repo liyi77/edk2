@@ -209,14 +209,6 @@
   $(OPENSSL_PATH)/crypto/dso/dso_openssl.c
   $(OPENSSL_PATH)/crypto/dso/dso_vms.c
   $(OPENSSL_PATH)/crypto/dso/dso_win32.c
-  $(OPENSSL_PATH)/crypto/ec/curve448/arch_32/f_impl32.c
-  $(OPENSSL_PATH)/crypto/ec/curve448/arch_64/f_impl64.c
-  $(OPENSSL_PATH)/crypto/ec/curve448/curve448.c
-  $(OPENSSL_PATH)/crypto/ec/curve448/curve448_tables.c
-  $(OPENSSL_PATH)/crypto/ec/curve448/eddsa.c
-  $(OPENSSL_PATH)/crypto/ec/curve448/f_generic.c
-  $(OPENSSL_PATH)/crypto/ec/curve448/scalar.c
-  $(OPENSSL_PATH)/crypto/ec/curve25519.c
   $(OPENSSL_PATH)/crypto/ec/ec2_oct.c
   $(OPENSSL_PATH)/crypto/ec/ec2_smpl.c
   $(OPENSSL_PATH)/crypto/ec/ec_ameth.c
@@ -244,9 +236,6 @@
   $(OPENSSL_PATH)/crypto/ec/ecp_nist.c
   $(OPENSSL_PATH)/crypto/ec/ecp_oct.c
   $(OPENSSL_PATH)/crypto/ec/ecp_smpl.c
-  $(OPENSSL_PATH)/crypto/ec/ecx_backend.c
-  $(OPENSSL_PATH)/crypto/ec/ecx_key.c
-  $(OPENSSL_PATH)/crypto/ec/ecx_meth.c
   $(OPENSSL_PATH)/crypto/encode_decode/decoder_err.c
   $(OPENSSL_PATH)/crypto/encode_decode/decoder_lib.c
   $(OPENSSL_PATH)/crypto/encode_decode/decoder_meth.c
@@ -630,7 +619,6 @@
   $(OPENSSL_PATH)/providers/implementations/encode_decode/endecoder_common.c
   $(OPENSSL_PATH)/providers/implementations/exchange/dh_exch.c
   $(OPENSSL_PATH)/providers/implementations/exchange/ecdh_exch.c
-  $(OPENSSL_PATH)/providers/implementations/exchange/ecx_exch.c
   $(OPENSSL_PATH)/providers/implementations/exchange/kdf_exch.c
   $(OPENSSL_PATH)/providers/implementations/kdfs/argon2.c
   $(OPENSSL_PATH)/providers/implementations/kdfs/hkdf.c
@@ -646,12 +634,10 @@
   $(OPENSSL_PATH)/providers/implementations/kdfs/tls1_prf.c
   $(OPENSSL_PATH)/providers/implementations/kdfs/x942kdf.c
   $(OPENSSL_PATH)/providers/implementations/kem/ec_kem.c
-  $(OPENSSL_PATH)/providers/implementations/kem/ecx_kem.c
   $(OPENSSL_PATH)/providers/implementations/kem/kem_util.c
   $(OPENSSL_PATH)/providers/implementations/kem/rsa_kem.c
   $(OPENSSL_PATH)/providers/implementations/keymgmt/dh_kmgmt.c
   $(OPENSSL_PATH)/providers/implementations/keymgmt/ec_kmgmt.c
-  $(OPENSSL_PATH)/providers/implementations/keymgmt/ecx_kmgmt.c
   $(OPENSSL_PATH)/providers/implementations/keymgmt/kdf_legacy_kmgmt.c
   $(OPENSSL_PATH)/providers/implementations/keymgmt/mac_legacy_kmgmt.c
   $(OPENSSL_PATH)/providers/implementations/keymgmt/rsa_kmgmt.c
@@ -670,14 +656,12 @@
   $(OPENSSL_PATH)/providers/implementations/rands/seeding/rand_unix.c
   $(OPENSSL_PATH)/providers/implementations/rands/seeding/rand_win.c
   $(OPENSSL_PATH)/providers/implementations/signature/ecdsa_sig.c
-  $(OPENSSL_PATH)/providers/implementations/signature/eddsa_sig.c
   $(OPENSSL_PATH)/providers/implementations/signature/mac_legacy_sig.c
   $(OPENSSL_PATH)/providers/implementations/signature/rsa_sig.c
   $(OPENSSL_PATH)/ssl/record/methods/ssl3_cbc.c
   $(OPENSSL_GEN_PATH)/crypto/params_idx.c
   $(OPENSSL_PATH)/providers/common/der/der_ec_key.c
   $(OPENSSL_PATH)/providers/common/der/der_ec_sig.c
-  $(OPENSSL_PATH)/providers/common/der/der_ecx_key.c
   $(OPENSSL_PATH)/providers/common/der/der_rsa_key.c
   $(OPENSSL_PATH)/providers/common/provider_ctx.c
   $(OPENSSL_PATH)/providers/common/provider_err.c
@@ -692,7 +676,6 @@
   $(OPENSSL_PATH)/ssl/record/methods/tls_pad.c
   $(OPENSSL_GEN_PATH)/providers/common/der/der_digests_gen.c
   $(OPENSSL_GEN_PATH)/providers/common/der/der_ec_gen.c
-  $(OPENSSL_GEN_PATH)/providers/common/der/der_ecx_gen.c
   $(OPENSSL_GEN_PATH)/providers/common/der/der_rsa_gen.c
   $(OPENSSL_GEN_PATH)/providers/common/der/der_wrap_gen.c
   $(OPENSSL_PATH)/ssl/bio_ssl.c
