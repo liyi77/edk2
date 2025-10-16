@@ -28,6 +28,20 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #define CRYPTO_NID_SECP521R1        0x0206
 #define CRYPTO_NID_BRAINPOOLP512R1  0x03A5
 
+// SLH DSA
+#define CRYPTO_NID_SLH_DSA_SHA2_128S   0x0401
+#define CRYPTO_NID_SLH_DSA_SHA2_128F   0x0402
+#define CRYPTO_NID_SLH_DSA_SHA2_192S   0x0403
+#define CRYPTO_NID_SLH_DSA_SHA2_192F   0x0404
+#define CRYPTO_NID_SLH_DSA_SHA2_256S   0x0405
+#define CRYPTO_NID_SLH_DSA_SHA2_256F   0x0406
+#define CRYPTO_NID_SLH_DSA_SHAKE_128S  0x0407
+#define CRYPTO_NID_SLH_DSA_SHAKE_128F  0x0408
+#define CRYPTO_NID_SLH_DSA_SHAKE_192S  0x0409
+#define CRYPTO_NID_SLH_DSA_SHAKE_192F  0x040A
+#define CRYPTO_NID_SLH_DSA_SHAKE_256S  0x040B
+#define CRYPTO_NID_SLH_DSA_SHAKE_256F  0x040C
+
 ///
 /// MD5 digest size in bytes
 ///
@@ -4299,6 +4313,71 @@ EcDsaVerify (
   IN  UINTN        HashNid,
   IN  CONST UINT8  *MessageHash,
   IN  UINTN        HashSize,
+  IN  CONST UINT8  *Signature,
+  IN  UINTN        SigSize
+  );
+
+  VOID *
+EFIAPI
+SlhNewByNid (
+  IN UINTN  Nid
+  );
+
+/**
+  Release the specified EC context.
+
+  @param[in]  SlhContext  Pointer to the EC context to be released.
+**/
+VOID
+EFIAPI
+SlhFree (
+  IN  VOID  *SlhContext
+  );
+
+BOOLEAN
+EFIAPI
+SlhGetPubKey (
+  IN OUT  VOID   *SlhContext,
+  OUT     UINT8  *PublicKey,
+  IN OUT  UINTN  *PublicKeySize
+  );
+
+BOOLEAN
+EFIAPI
+SlhSetPubKey (
+  IN OUT  VOID   *SlhContext,
+  OUT     UINT8  *PublicKey,
+  IN OUT  UINTN  *PublicKeySize
+  );
+
+BOOLEAN
+EFIAPI
+SlhSetPrivKey (
+  IN OUT  VOID   *SlhContext,
+  OUT     UINT8  *PrivateKey,
+  IN OUT  UINTN  *PrivateKeySize
+  );
+
+BOOLEAN
+EFIAPI
+SlhDsaSign (
+  IN  VOID         *SlhContext,
+  IN  CONST UINT8  *Context,
+  IN  UINTN        ContextSize,
+  IN  CONST UINT8  *Message,
+  IN  UINTN        MessageSize,
+  IN  UINT8        *Signature,
+  IN  UINTN        *SigSize
+  );
+
+BOOLEAN
+EFIAPI
+SlhDsaVerify (
+  IN  VOID         *SlhContext,
+  IN  CONST UINT8  *Context,
+  IN  UINTN        ContextSize,
+  IN  CONST UINT8  *Message,
+  IN  UINTN        MessageSize,
   IN  CONST UINT8  *Signature,
   IN  UINTN        SigSize
   );
