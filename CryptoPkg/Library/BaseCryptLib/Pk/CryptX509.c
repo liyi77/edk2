@@ -13,6 +13,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <openssl/asn1.h>
 #include <openssl/rsa.h>
 
+
 /* OID*/
 #define OID_EXT_KEY_USAGE      { 0x55, 0x1D, 0x25 }
 #define OID_BASIC_CONSTRAINTS  { 0x55, 0x1D, 0x13 }
@@ -630,6 +631,81 @@ RsaGetPublicKeyFromX509 (
   if ((*RsaContext = RSAPublicKey_dup (EVP_PKEY_get0_RSA (Pkey))) != NULL) {
     Status = TRUE;
   }
+
+_Exit:
+  //
+  // Release Resources.
+  //
+  if (X509Cert != NULL) {
+    X509_free (X509Cert);
+  }
+
+  if (Pkey != NULL) {
+    EVP_PKEY_free (Pkey);
+  }
+
+  return Status;
+}
+
+/**
+  Retrieve the ML-DSA Public Key from one DER-encoded X509 certificate.
+
+  @param[in]  Cert         Pointer to the DER-encoded X509 certificate.
+  @param[in]  CertSize     Size of the X509 certificate in bytes.
+
+  If Cert is NULL, then return FALSE.
+  If RsaContext is NULL, then return FALSE.
+
+  @retval  TRUE   ML-DSA Public Key was retrieved successfully.
+  @retval  FALSE  Fail to retrieve ML-DSA public key from X509 certificate.
+
+**/
+BOOLEAN
+EFIAPI
+MlDsaGetPublicKeyFromX509 (
+  IN   CONST UINT8  *Cert,
+  IN   UINTN        CertSize
+  )
+{
+  BOOLEAN   Status;
+  EVP_PKEY  *Pkey;
+  X509      *X509Cert;
+
+  //
+  // Check input parameters.
+  //
+  if ((Cert == NULL)) {
+    return FALSE;
+  }
+
+  Pkey     = NULL;
+  X509Cert = NULL;
+
+  Status = X509ConstructCertificate (Cert, CertSize, (UINT8 **)&X509Cert);
+  if ((X509Cert == NULL) || (!Status)) {
+    Status = FALSE;
+    goto _Exit;
+  }
+
+  Status = FALSE;
+
+  //
+  // Retrieve and check EVP_PKEY data from X509 Certificate.
+  //
+  Pkey = X509_get_pubkey (X509Cert);
+  if (Pkey == NULL) {
+    DEBUG ((DEBUG_INFO, "LY: X509_get_pubkey ML-DSA check fail\n"));
+    goto _Exit;
+  }
+
+  //
+  // Check if the key is one of the ML-DSA types
+  //
+  if ((AsciiStrCmp (EVP_PKEY_get0_type_name (Pkey), "ML-DSA-87") != 0)){
+    goto _Exit;
+  }
+
+  Status = TRUE;
 
 _Exit:
   //
