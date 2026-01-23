@@ -33,7 +33,12 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #define RT_PAGE_FREE  0x00000000
 #define RT_PAGE_USED  0x00000001
 
-#define MIN_REQUIRED_BLOCKS  1100
+//
+// Increase memory pool size to reduce fragmentation for ML-DSA operations
+// Original: 1100 blocks (1.1 MB)
+// New: 2048 blocks (2 MB) - provides more headroom for large keys
+//
+#define MIN_REQUIRED_BLOCKS  2048
 
 //
 // Memory Page Table
